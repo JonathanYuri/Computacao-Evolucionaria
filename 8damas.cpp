@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <map>
 
@@ -43,11 +44,9 @@ bool ExistsOnTheBoard(map<pair<float, float>, bool> tabuleiro, pair<float, float
 }
 
 // remover casas do tabuleiro
-vector<pair<float, float>> PutQueenInPosition(map<pair<float, float>, bool> *tabuleiro, vector<pair<float, float>> *damas, pair<float, float> position)
+vector<pair<float, float>> PutQueenInPosition(map<pair<float, float>, bool> *tabuleiro, pair<float, float> position)
 {
     vector<pair<float, float>> ameacas;
-
-    damas->push_back(position);
 
     // consumir a linha
     for (int j = 0; j < 8; j++)
@@ -126,6 +125,61 @@ void TakeQueenInPosition(map<pair<float, float>, bool> *tabuleiro, vector<pair<f
     }
 }
 
+vector<pair<int, int>> SortLosses(map<int, vector<int>> loss, vector<int> losses)
+{
+    sort(losses.begin(), losses.end());
+
+    //cout << "losses: " << endl;
+
+    vector<pair<int, int>> l;
+    for (auto i : losses)
+    {
+        //cout << i << "-> ";
+        
+        for (auto a : loss[i])
+        {
+            //cout << a << ", ";
+            l.push_back({a, i});
+        }
+    }
+    return l;
+}
+
+vector<pair<int, int>> CalculateLossOfParts(map<pair<float, float>, bool> tabuleiro, int y)
+{
+    map<int, vector<int>> loss;
+    vector<int> losses;
+
+    // 22 -> 0, 1, 2, 3, 4, 5, 6, 7
+    for (int i = 0; i < 8; i++)
+    {
+        map<pair<float, float>, bool> tab = tabuleiro;
+        vector<pair<float, float>> parts = PutQueenInPosition(&tab, {i, y});
+        int lostparts = parts.size();
+        
+        vector<int>::iterator it = std::find(losses.begin(), losses.end(), lostparts);
+
+        if(it == losses.end()) {
+            losses.push_back(lostparts);
+        }
+
+        vector<int> a = loss[lostparts];
+        a.push_back(i);
+        loss[lostparts] = a;
+    }
+
+    vector<pair<int, int>> l = SortLosses(loss, losses);
+
+    /*
+    for (auto p : l)
+    {
+        cout << "{" << p.first << ", " << p.second << "}" << endl;
+    }
+    */
+
+    return l;
+}
+
 void OitoDamas(map<pair<float, float>, bool> tabuleiro, vector<pair<float, float>> damas, int y)
 {
     if (damas.size() == 8)
@@ -136,12 +190,14 @@ void OitoDamas(map<pair<float, float>, bool> tabuleiro, vector<pair<float, float
 
     if (tabuleiro.size() == 0)  return;
 
-    int l = 0;
-    while (l < 8)
+    vector<pair<int, int>> loss = CalculateLossOfParts(tabuleiro, y);
+
+    for (auto i : loss)
     {
-        if (ExistsOnTheBoard(tabuleiro, {l, y}))
+        if (ExistsOnTheBoard(tabuleiro, {i.first, y}))
         {
-            vector<pair<float, float>> ameacas = PutQueenInPosition(&tabuleiro, &damas, {l, y});
+            vector<pair<float, float>> ameacas = PutQueenInPosition(&tabuleiro, {i.first, y});
+            damas.push_back({i.first, y});
 
             //cout << "--------=== dama na pos {" << l << ", " << y << "} ====---------" << endl;
             //PrintBoard(tabuleiro);
@@ -150,7 +206,6 @@ void OitoDamas(map<pair<float, float>, bool> tabuleiro, vector<pair<float, float
 
             TakeQueenInPosition(&tabuleiro, &damas, ameacas);
         }
-        l++;
     }
 }
 
