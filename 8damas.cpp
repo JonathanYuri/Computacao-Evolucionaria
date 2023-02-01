@@ -5,6 +5,8 @@
 
 using namespace std;
 
+int SIZE = 8;
+
 void PrintBoard(map<pair<float, float>, bool> tabuleiro)
 {
     map<pair<float, float>, bool>::iterator it;
@@ -13,12 +15,12 @@ void PrintBoard(map<pair<float, float>, bool> tabuleiro)
     }
 }
 
-map<pair<float, float>, bool> InitializeBoard(int n, int m)
+map<pair<float, float>, bool> InitializeBoard()
 {
     map<pair<float, float>, bool> tabuleiro;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < SIZE; i++)
     {
-        for (int j = 0; j < m; j++)
+        for (int j = 0; j < SIZE; j++)
         {
             pair<float, float> p = {i, j};
             tabuleiro.insert(make_pair(p, true));
@@ -49,7 +51,7 @@ vector<pair<float, float>> PutQueenInPosition(map<pair<float, float>, bool> *tab
     vector<pair<float, float>> ameacas;
 
     // consumir a linha
-    for (int j = 0; j < 8; j++)
+    for (int j = 0; j < SIZE; j++)
     {
         if (ExistsOnTheBoard(*tabuleiro, {position.first, j}))
         {
@@ -59,7 +61,7 @@ vector<pair<float, float>> PutQueenInPosition(map<pair<float, float>, bool> *tab
     }
 
     // consumir a coluna
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < SIZE; i++)
     {
         if (ExistsOnTheBoard(*tabuleiro, {i, position.second}))
         {
@@ -80,9 +82,9 @@ vector<pair<float, float>> PutQueenInPosition(map<pair<float, float>, bool> *tab
             tabuleiro->erase({i, j});
         }
     }
-    for (int i = position.first + 1, j = position.second + 1; i < 8; i++, j++)
+    for (int i = position.first + 1, j = position.second + 1; i < SIZE; i++, j++)
     {
-        if (j >= 8)  break;
+        if (j >= SIZE)  break;
         if (ExistsOnTheBoard(*tabuleiro, {i, j}))
         {
             ameacas.push_back({i, j});
@@ -91,7 +93,7 @@ vector<pair<float, float>> PutQueenInPosition(map<pair<float, float>, bool> *tab
     }
 
     // 2 diagonal
-    for (int i = position.first + 1, j = position.second - 1; i < 8; i++, j--)
+    for (int i = position.first + 1, j = position.second - 1; i < SIZE; i++, j--)
     {
         if (j < 0) break;
         if (ExistsOnTheBoard(*tabuleiro, {i, j}))
@@ -103,7 +105,7 @@ vector<pair<float, float>> PutQueenInPosition(map<pair<float, float>, bool> *tab
 
     for (int i = position.first - 1, j = position.second + 1; i >= 0; i--, j++)
     {
-        if (j >= 8)  break;
+        if (j >= SIZE)  break;
         if (ExistsOnTheBoard(*tabuleiro, {i, j}))
         {
             ameacas.push_back({i, j});
@@ -151,7 +153,7 @@ vector<pair<int, int>> CalculateLossOfParts(map<pair<float, float>, bool> tabule
     vector<int> losses;
 
     // 22 -> 0, 1, 2, 3, 4, 5, 6, 7
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < SIZE; i++)
     {
         map<pair<float, float>, bool> tab = tabuleiro;
         vector<pair<float, float>> parts = PutQueenInPosition(&tab, {i, y});
@@ -182,7 +184,7 @@ vector<pair<int, int>> CalculateLossOfParts(map<pair<float, float>, bool> tabule
 
 void OitoDamas(map<pair<float, float>, bool> tabuleiro, vector<pair<float, float>> damas, int y)
 {
-    if (damas.size() == 8)
+    if (damas.size() == SIZE)
     {
         PrintSolution(damas);
         exit(0);
@@ -214,7 +216,14 @@ int main()
     // true se esta ocupada
     map<pair<float, float>, bool> tabuleiro;
 
-    tabuleiro = InitializeBoard(8, 8);
+    int n;
+    cout << "Digite o tamanho do tabuleiro: ";
+    cin >> n;
+
+    if (n <= 0) return 0;
+    SIZE = n;
+
+    tabuleiro = InitializeBoard();
     //PrintBoard(tabuleiro);
 
     OitoDamas(tabuleiro, {}, 0);
