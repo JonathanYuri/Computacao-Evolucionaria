@@ -153,10 +153,11 @@ vector<pair<int, int>> CalculateLossOfParts(map<pair<float, float>, bool> tabule
     vector<int> losses;
 
     // 22 -> 0, 1, 2, 3, 4, 5, 6, 7
+    map<pair<float, float>, bool> tab = tabuleiro;
+
     for (int i = 0; i < SIZE; i++)
     {
-        map<pair<float, float>, bool> tab = tabuleiro;
-        vector<pair<float, float>> parts = PutQueenInPosition(&tab, {i, y});
+        vector<pair<float, float>> parts = PutQueenInPosition(&tabuleiro, {i, y});
         int lostparts = parts.size();
         
         vector<int>::iterator it = std::find(losses.begin(), losses.end(), lostparts);
@@ -168,15 +169,18 @@ vector<pair<int, int>> CalculateLossOfParts(map<pair<float, float>, bool> tabule
         vector<int> a = loss[lostparts];
         a.push_back(i);
         loss[lostparts] = a;
+        tabuleiro = tab;
     }
 
     vector<pair<int, int>> l = SortLosses(loss, losses);
 
     /*
+    cout << "perdas" << endl;
     for (auto p : l)
     {
-        cout << "{" << p.first << ", " << p.second << "}" << endl;
+        cout << "{" << p.first << ", " << p.second << "} ";
     }
+    cout << endl;
     */
 
     return l;
