@@ -38,9 +38,6 @@ individuo GerarIndividuo()
     {
         for (int j = 0; j < SIZE; j++)
         {
-            unsigned seed = time(0);
-            cout << seed << " ";
-            srand(seed);
             ind.tab[{i, j}] = rand() % 2;
         }
     }
@@ -216,7 +213,6 @@ void Reproduzir(vector<individuo> &populacao, int tam)
     // pegar um numero random entre 0 e SIZE * SIZE para pegar parte de um e parte do outro
 
     // de 1 a SIZE * SIZE - 1
-    unsigned seed = time(0);
     int i = rand() % (tam - 1) + 1;
     cout << "-=- " << i;
     //tirar o ultimo e colocar esse novo
@@ -242,6 +238,7 @@ void OitoDamas()
 
 int main()
 {
+    srand((unsigned) time(NULL));
     OitoDamas();
     return 0;
 }
