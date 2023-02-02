@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <ctime>
 #include <unordered_set>
 #include <cmath>
 #include <vector>
@@ -37,6 +38,9 @@ individuo GerarIndividuo()
     {
         for (int j = 0; j < SIZE; j++)
         {
+            unsigned seed = time(0);
+            cout << seed << " ";
+            srand(seed);
             ind.tab[{i, j}] = rand() % 2;
         }
     }
@@ -202,6 +206,22 @@ void OrdenarPopulacao(vector<individuo> &populacao)
     populacao = populacaoOrdenada;
 }
 
+void Reproduzir(vector<individuo> &populacao, int tam)
+{
+
+    // pegar os dois individuos com melhor valor
+    individuo i1 = populacao[0];
+    individuo i2 = populacao[1];
+
+    // pegar um numero random entre 0 e SIZE * SIZE para pegar parte de um e parte do outro
+
+    // de 1 a SIZE * SIZE - 1
+    unsigned seed = time(0);
+    int i = rand() % (tam - 1) + 1;
+    cout << "-=- " << i;
+    //tirar o ultimo e colocar esse novo
+}
+
 void OitoDamas()
 {
     int qntIndividuos = 10;
@@ -213,9 +233,8 @@ void OitoDamas()
     while (maiorAvaliacao != obj)
     {
         OrdenarPopulacao(populacao);
-        Reproduzir();
+        Reproduzir(populacao, obj);
         break;
-        // selecionar para reproducao
         // cruzamento e mutacao
         // gerar a nova populacao, os melhores continuando a quantidade de individuos
     }
