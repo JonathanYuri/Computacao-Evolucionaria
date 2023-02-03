@@ -153,10 +153,9 @@ void AvaliarIndividuo(individuo &ind)
             }
         }
     }
+    //ind.valor = ameacas.size() - ameacasADamas * pow(SIZE, 2);
 
-    //cout << ameacas.size() << ", " << ameacasADamas << endl;
-    ind.valor = ameacas.size() - ameacasADamas * pow(SIZE, 2);
-    //cout << ": " << ind->valor << endl;
+    ind.valor = ameacas.size() - ameacasADamas * SIZE;
 }
 
 int AvaliarPopulacao(vector<individuo> &populacao)
@@ -203,9 +202,27 @@ void OrdenarPopulacao(vector<individuo> &populacao)
     populacao = populacaoOrdenada;
 }
 
+void MutarIndividuo(individuo &i, int tam)
+{
+    int mutar = rand() % (tam - 1) + 1;
+
+    int qnt = 0;
+    for (int k = 0; k < SIZE; k++)
+    {
+        for (int m = 0; m < SIZE; m++)
+        {
+            if (qnt == mutar)
+            {
+                i.tab[{k, m}] == 1 ? i.tab[{k, m}] = 0 : i.tab[{k, m}] = 1;
+                return;
+            }
+            qnt++;
+        }
+    }
+}
+
 void Reproduzir(vector<individuo> &populacao, int tam)
 {
-
     // pegar os dois individuos com melhor valor
     individuo i1 = populacao[0];
     individuo i2 = populacao[1];
@@ -213,9 +230,50 @@ void Reproduzir(vector<individuo> &populacao, int tam)
     // pegar um numero random entre 0 e SIZE * SIZE para pegar parte de um e parte do outro
 
     // de 1 a SIZE * SIZE - 1
-    int i = rand() % (tam - 1) + 1;
-    cout << "-=- " << i;
+    int corte = rand() % (tam - 1) + 1;
+    // rand() % 63 -> 0 a 62 + 1 -> 1 a 63
+
     //tirar o ultimo e colocar esse novo
+    populacao.pop_back();
+
+    individuo filho;
+
+    int qnt = 0;
+    for (int i = 0; i < SIZE; i++)
+    {
+        for (int j = 0; j < SIZE; j++)
+        {
+            if (qnt < corte)
+            {
+                filho.tab.insert({{i, j}, i1.tab[{i,j}]});
+            }
+            else
+            {
+                filho.tab.insert({{i, j}, i2.tab[{i,j}]});
+            }
+            qnt++;
+        }
+    }
+
+    /*
+    if (rand() % 3 == 1)
+    {
+        MutarIndividuo(filho);
+    }
+    */
+
+    populacao.push_back(filho);
+}
+
+void MutarPopulacao(vector<individuo> &populacao, int tam)
+{
+    for (int i = 0; i < populacao.size(); i++)
+    {
+        if (rand() % 4 == 1)
+        {
+            MutarIndividuo(populacao[i], tam);
+        }
+    }
 }
 
 void OitoDamas()
@@ -228,12 +286,31 @@ void OitoDamas()
 
     while (maiorAvaliacao != obj)
     {
+        cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
         Reproduzir(populacao, obj);
-        break;
-        // cruzamento e mutacao
-        // gerar a nova populacao, os melhores continuando a quantidade de individuos
+
+        /*
+        cout << "ANTES" << endl;
+        for (individuo i : populacao)
+        {
+            PrintarIndividuo(i);
+        }
+        */
+
+        MutarPopulacao(populacao, obj);
+
+        /*
+        cout << "DEPOIS" << endl;
+        for (individuo i : populacao)
+        {
+            PrintarIndividuo(i);
+        }
+        */
+        maiorAvaliacao = AvaliarPopulacao(populacao);
     }
+
+    PrintarIndividuo(populacao[0]);
 }
 
 int main()
