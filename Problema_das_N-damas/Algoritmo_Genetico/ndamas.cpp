@@ -58,16 +58,21 @@ void PrintarIndividuo(individuo ind)
     cout << endl;
 }
 
+void PrintarPopulacao(vector<individuo> populacao)
+{
+    for (int i = 0; i < populacao.size(); i++)
+    {
+        cout << "individuo " << i << endl;
+        PrintarIndividuo(populacao[i]);
+    }
+}
+
 vector<individuo> GerarPopulacao(int qntIndividuos)
 {
     vector<individuo> populacao;
     for (int i = 0; i < qntIndividuos; i++)
     {
         individuo ind = GerarIndividuo();
-
-        cout << "ind " << i << endl;
-        PrintarIndividuo(ind);
-
         populacao.push_back(ind);
     }
 
@@ -143,6 +148,7 @@ void AvaliarIndividuo(individuo &ind)
     map<pair<float, float>, int> ameacas;
     int ameacasADamas = 0;
 
+    int qntDamas = 0;
     for (int i = 0; i < SIZE; i++)
     {
         for (int j = 0; j < SIZE; j++)
@@ -150,12 +156,14 @@ void AvaliarIndividuo(individuo &ind)
             if (ind.tab[{i, j}] == 1)
             {
                 ameacasADamas += ContarAmeacas(ind.tab, {i, j}, ameacas);
+                qntDamas++;
             }
         }
     }
     //ind.valor = ameacas.size() - ameacasADamas * pow(SIZE, 2);
 
-    ind.valor = ameacas.size() - ameacasADamas * SIZE;
+    //cout << "quantidade de damas: " << qntDamas << endl;
+    ind.valor = qntDamas - ameacasADamas;
 }
 
 int AvaliarPopulacao(vector<individuo> &populacao)
@@ -202,25 +210,6 @@ void OrdenarPopulacao(vector<individuo> &populacao)
     populacao = populacaoOrdenada;
 }
 
-void MutarIndividuo(individuo &i, int tam)
-{
-    int mutar = rand() % (tam - 1) + 1;
-
-    int qnt = 0;
-    for (int k = 0; k < SIZE; k++)
-    {
-        for (int m = 0; m < SIZE; m++)
-        {
-            if (qnt == mutar)
-            {
-                i.tab[{k, m}] == 1 ? i.tab[{k, m}] = 0 : i.tab[{k, m}] = 1;
-                return;
-            }
-            qnt++;
-        }
-    }
-}
-
 void Reproduzir(vector<individuo> &populacao, int tam)
 {
     // pegar os dois individuos com melhor valor
@@ -265,6 +254,25 @@ void Reproduzir(vector<individuo> &populacao, int tam)
     populacao.push_back(filho);
 }
 
+void MutarIndividuo(individuo &i, int tam)
+{
+    int mutar = rand() % (tam - 1) + 1;
+
+    int qnt = 0;
+    for (int k = 0; k < SIZE; k++)
+    {
+        for (int m = 0; m < SIZE; m++)
+        {
+            if (qnt == mutar)
+            {
+                i.tab[{k, m}] == 1 ? i.tab[{k, m}] = 0 : i.tab[{k, m}] = 1;
+                return;
+            }
+            qnt++;
+        }
+    }
+}
+
 void MutarPopulacao(vector<individuo> &populacao, int tam)
 {
     for (int i = 0; i < populacao.size(); i++)
@@ -276,46 +284,44 @@ void MutarPopulacao(vector<individuo> &populacao, int tam)
     }
 }
 
-void OitoDamas()
+void NDamas()
 {
     int qntIndividuos = 10;
-    int obj = pow(SIZE, 2);
+    int tam = pow(SIZE, 2);
     
     vector<individuo> populacao = GerarPopulacao(10);
+    cout << "populacao inicial:" << endl;
+    PrintarPopulacao(populacao);
+    cout << endl;
+
     int maiorAvaliacao = AvaliarPopulacao(populacao);
 
-    while (maiorAvaliacao != obj)
+    while (maiorAvaliacao != SIZE)
     {
-        cout << maiorAvaliacao << endl;
+        //cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
-        Reproduzir(populacao, obj);
-
-        /*
-        cout << "ANTES" << endl;
-        for (individuo i : populacao)
-        {
-            PrintarIndividuo(i);
-        }
-        */
-
-        MutarPopulacao(populacao, obj);
-
-        /*
-        cout << "DEPOIS" << endl;
-        for (individuo i : populacao)
-        {
-            PrintarIndividuo(i);
-        }
-        */
+        Reproduzir(populacao, tam);
+        MutarPopulacao(populacao, tam);
         maiorAvaliacao = AvaliarPopulacao(populacao);
     }
 
+    OrdenarPopulacao(populacao);
+
+    cout << "individuo:" << endl;
     PrintarIndividuo(populacao[0]);
 }
 
 int main()
 {
     srand((unsigned) time(NULL));
-    OitoDamas();
+
+    int n;
+    cout << "Digite o tamanho do tabuleiro: ";
+    cin >> n;
+
+    if (n <= 0) return 0;
+    SIZE = n;
+    
+    NDamas();
     return 0;
 }

@@ -186,7 +186,7 @@ vector<pair<int, int>> CalculateLossOfParts(map<pair<float, float>, bool> tabule
     return l;
 }
 
-void OitoDamas(map<pair<float, float>, bool> tabuleiro, vector<pair<float, float>> damas, int y)
+void NDamas(map<pair<float, float>, bool> tabuleiro, vector<pair<float, float>> damas, int y)
 {
     if (damas.size() == SIZE)
     {
@@ -208,7 +208,7 @@ void OitoDamas(map<pair<float, float>, bool> tabuleiro, vector<pair<float, float
             //cout << "--------=== dama na pos {" << l << ", " << y << "} ====---------" << endl;
             //PrintBoard(tabuleiro);
 
-            OitoDamas(tabuleiro, damas, y+1);
+            NDamas(tabuleiro, damas, y+1);
 
             TakeQueenInPosition(&tabuleiro, &damas, ameacas);
         }
@@ -228,8 +228,7 @@ int main()
     SIZE = n;
 
     tabuleiro = InitializeBoard();
-    //PrintBoard(tabuleiro);
 
-    OitoDamas(tabuleiro, {}, 0);
+    NDamas(tabuleiro, {}, 0);
     return 0;
  }
