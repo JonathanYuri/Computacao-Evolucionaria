@@ -9,6 +9,7 @@
 using namespace std;
 
 int SIZE = 8;
+double prob_mutacao = 0.2;
 
 struct individuo {
     map<pair<float, float>, int> tab;
@@ -88,7 +89,7 @@ int VerificarSeAmeacaADama(map<pair<float, float>, int> tab, pair<float, float> 
     return 0;
 }
 
-int ContarAmeacas(map<pair<float, float>, int> tab, pair<float, float> queenPosition, map<pair<float, float>, int> &ameacas)
+int ContarAmeacas(map<pair<float, float>, int> tab, pair<float, float> queenPosition)
 {
     int ameacasADamas = 0;
 
@@ -96,14 +97,12 @@ int ContarAmeacas(map<pair<float, float>, int> tab, pair<float, float> queenPosi
     for (int j = 0; j < SIZE; j++)
     {
         ameacasADamas += VerificarSeAmeacaADama(tab, {queenPosition.first, j}, queenPosition);
-        ameacas.insert({{queenPosition.first, j}, 0});
     }
 
     // consumir a coluna
     for (int i = 0; i < SIZE; i++)
     {
         ameacasADamas += VerificarSeAmeacaADama(tab, {i, queenPosition.second}, queenPosition);
-        ameacas.insert({{i, queenPosition.second}, 0});
     }
 
     // consumir diagonais
@@ -114,14 +113,12 @@ int ContarAmeacas(map<pair<float, float>, int> tab, pair<float, float> queenPosi
         if (j < 0) break;
         
         ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-        ameacas.insert({{i, j}, 0});
     }
     for (int i = queenPosition.first + 1, j = queenPosition.second + 1; i < SIZE; i++, j++)
     {
         if (j >= SIZE)  break;
 
         ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-        ameacas.insert({{i, j}, 0});
     }
 
     // 2 diagonal
@@ -130,7 +127,6 @@ int ContarAmeacas(map<pair<float, float>, int> tab, pair<float, float> queenPosi
         if (j < 0) break;
 
         ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-        ameacas.insert({{i, j}, 0});
     }
 
     for (int i = queenPosition.first - 1, j = queenPosition.second + 1; i >= 0; i--, j++)
@@ -138,14 +134,12 @@ int ContarAmeacas(map<pair<float, float>, int> tab, pair<float, float> queenPosi
         if (j >= SIZE)  break;
 
         ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-        ameacas.insert({{i, j}, 0});
     }
     return ameacasADamas;
 }
 
-void AvaliarIndividuo(individuo &ind)
+void AvaliarIndividuo(individuo &ind, int tam)
 {
-    map<pair<float, float>, int> ameacas;
     int ameacasADamas = 0;
 
     int qntDamas = 0;
@@ -155,24 +149,22 @@ void AvaliarIndividuo(individuo &ind)
         {
             if (ind.tab[{i, j}] == 1)
             {
-                ameacasADamas += ContarAmeacas(ind.tab, {i, j}, ameacas);
+                ameacasADamas += ContarAmeacas(ind.tab, {i, j});
                 qntDamas++;
             }
         }
     }
-    //ind.valor = ameacas.size() - ameacasADamas * pow(SIZE, 2);
-
-    //cout << "quantidade de damas: " << qntDamas << endl;
-    ind.valor = qntDamas - ameacasADamas;
+    int penalidade = ameacasADamas * tam;
+    ind.valor = qntDamas - penalidade;
 }
 
-int AvaliarPopulacao(vector<individuo> &populacao)
+int AvaliarPopulacao(vector<individuo> &populacao, int tam)
 {
     vector<int> desempenhos;
 
     for (int i = 0; i < populacao.size(); i++)
     {
-        AvaliarIndividuo(populacao[i]);
+        AvaliarIndividuo(populacao[i], tam);
 
         desempenhos.push_back(populacao[i].valor);
     }
@@ -216,11 +208,9 @@ void Reproduzir(vector<individuo> &populacao, int tam)
     individuo i1 = populacao[0];
     individuo i2 = populacao[1];
 
-    // pegar um numero random entre 0 e SIZE * SIZE para pegar parte de um e parte do outro
-
-    // de 1 a SIZE * SIZE - 1
+    // de 1 a SIZE * SIZE - 1 para pegar parte de um e parte do outro
     int corte = rand() % (tam - 1) + 1;
-    // rand() % 63 -> 0 a 62 + 1 -> 1 a 63
+    // rand() % 63 -> 0 a 62 + 1 ->     1 a 63
 
     //tirar o ultimo e colocar esse novo
     populacao.pop_back();
@@ -256,28 +246,20 @@ void Reproduzir(vector<individuo> &populacao, int tam)
 
 void MutarIndividuo(individuo &i, int tam)
 {
-    int mutar = rand() % (tam - 1) + 1;
+    int mutar = rand() % tam;
 
-    int qnt = 0;
-    for (int k = 0; k < SIZE; k++)
-    {
-        for (int m = 0; m < SIZE; m++)
-        {
-            if (qnt == mutar)
-            {
-                i.tab[{k, m}] == 1 ? i.tab[{k, m}] = 0 : i.tab[{k, m}] = 1;
-                return;
-            }
-            qnt++;
-        }
-    }
+    int linha = mutar / SIZE;
+    int coluna = mutar % SIZE;
+
+    i.tab[{linha, coluna}] == 1 ? i.tab[{linha, coluna}] = 0 : i.tab[{linha, coluna}] = 1;
 }
 
 void MutarPopulacao(vector<individuo> &populacao, int tam)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
-        if (rand() % 4 == 1)
+        double prob = ((double) rand() / ((double)RAND_MAX + 1));
+        if (prob < prob_mutacao)
         {
             MutarIndividuo(populacao[i], tam);
         }
@@ -292,22 +274,22 @@ void NDamas()
     vector<individuo> populacao = GerarPopulacao(10);
     cout << "populacao inicial:" << endl;
     PrintarPopulacao(populacao);
-    cout << endl;
 
-    int maiorAvaliacao = AvaliarPopulacao(populacao);
-
+    int maiorAvaliacao = AvaliarPopulacao(populacao, tam);
+    int geracao = 0;
     while (maiorAvaliacao != SIZE)
     {
         //cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
         Reproduzir(populacao, tam);
         MutarPopulacao(populacao, tam);
-        maiorAvaliacao = AvaliarPopulacao(populacao);
+        maiorAvaliacao = AvaliarPopulacao(populacao, tam);
+        geracao++;
     }
 
     OrdenarPopulacao(populacao);
 
-    cout << "individuo:" << endl;
+    cout << "geracoes: " << geracao << " individuo:" << endl;
     PrintarIndividuo(populacao[0]);
 }
 
