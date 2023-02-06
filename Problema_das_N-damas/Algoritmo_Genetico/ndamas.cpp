@@ -266,12 +266,11 @@ void MutarPopulacao(vector<individuo> &populacao, int tam)
     }
 }
 
-void NDamas()
+void NDamas(int qntIndividuos)
 {
-    int qntIndividuos = 10;
     int tam = pow(SIZE, 2);
     
-    vector<individuo> populacao = GerarPopulacao(10);
+    vector<individuo> populacao = GerarPopulacao(qntIndividuos);
     cout << "populacao inicial:" << endl;
     PrintarPopulacao(populacao);
 
@@ -304,6 +303,10 @@ int main()
     if (n <= 3) return 0;
     SIZE = n;
     
-    NDamas();
+    int qntIndividuos;
+    cout << "Digite a quantidade de individuos: ";
+    cin >> qntIndividuos;
+
+    NDamas(qntIndividuos);
     return 0;
 }
