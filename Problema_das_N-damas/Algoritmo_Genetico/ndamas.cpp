@@ -296,16 +296,24 @@ int main()
 {
     srand((unsigned) time(NULL));
 
-    int n;
-    cout << "Digite o tamanho do tabuleiro: ";
-    cin >> n;
+    cout << "Digite o tamanho do tabuleiro (> 3): ";
+    cin >> SIZE;
 
-    if (n <= 3) return 0;
-    SIZE = n;
+    if (SIZE <= 3)
+    {
+        cout << "Digite um numero maior do que 3";
+        return 0;
+    }
     
     int qntIndividuos;
-    cout << "Digite a quantidade de individuos: ";
+    cout << "Digite a quantidade de individuos (> 2): ";
     cin >> qntIndividuos;
+
+    if (qntIndividuos <= 2)
+    {
+        cout << "Digite um numero maior do que 2" << endl;
+        return 0;
+    }
 
     NDamas(qntIndividuos);
     return 0;
