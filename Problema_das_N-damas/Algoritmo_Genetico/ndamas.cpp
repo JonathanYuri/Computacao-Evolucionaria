@@ -301,7 +301,7 @@ int main()
     cout << "Digite o tamanho do tabuleiro: ";
     cin >> n;
 
-    if (n <= 0) return 0;
+    if (n <= 3) return 0;
     SIZE = n;
     
     NDamas();
