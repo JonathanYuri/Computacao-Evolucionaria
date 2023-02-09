@@ -9,6 +9,7 @@
 using namespace std;
 
 int SIZE = 8;
+int TAM = 64;
 double prob_mutacao = 0.2;
 
 struct individuo {
@@ -80,91 +81,58 @@ vector<individuo> GerarPopulacao(int qntIndividuos)
     return populacao;
 }
 
-int VerificarSeAmeacaADama(map<pair<float, float>, int> tab, pair<float, float> position, pair<float, float> queenPosition)
+int ContarAmeacas(vector<pair<int, int>> damas)
 {
-    if (tab[position] == 1 && position != queenPosition)
+    int ameacas = 0;
+    for (int i = 0; i < damas.size(); i++)
     {
-        return 1;
+        for (int j = i + 1; j < damas.size(); j++)
+        {
+            if (damas[i].first == damas[j].first) // mesma linha
+            {
+                ameacas++;
+            }
+            if (damas[i].second == damas[j].second) // mesma coluna
+            {
+                ameacas++;
+            }
+            if (abs(damas[j].first - damas[i].first) == abs(damas[j].second - damas[i].second)) // diagonal
+            {
+                ameacas++;
+            }
+        }
     }
-    return 0;
-}
-
-int ContarAmeacas(map<pair<float, float>, int> tab, pair<float, float> queenPosition)
-{
-    int ameacasADamas = 0;
-
-    // consumir a linha
-    for (int j = 0; j < SIZE; j++)
-    {
-        ameacasADamas += VerificarSeAmeacaADama(tab, {queenPosition.first, j}, queenPosition);
-    }
-
-    // consumir a coluna
-    for (int i = 0; i < SIZE; i++)
-    {
-        ameacasADamas += VerificarSeAmeacaADama(tab, {i, queenPosition.second}, queenPosition);
-    }
-
-    // consumir diagonais
-
-    // 1 diagonal
-    for (int i = queenPosition.first - 1, j = queenPosition.second - 1; i >= 0; i--, j--)
-    {
-        if (j < 0) break;
-        
-        ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-    }
-    for (int i = queenPosition.first + 1, j = queenPosition.second + 1; i < SIZE; i++, j++)
-    {
-        if (j >= SIZE)  break;
-
-        ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-    }
-
-    // 2 diagonal
-    for (int i = queenPosition.first + 1, j = queenPosition.second - 1; i < SIZE; i++, j--)
-    {
-        if (j < 0) break;
-
-        ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-    }
-
-    for (int i = queenPosition.first - 1, j = queenPosition.second + 1; i >= 0; i--, j++)
-    {
-        if (j >= SIZE)  break;
-
-        ameacasADamas += VerificarSeAmeacaADama(tab, {i, j}, queenPosition);
-    }
-    return ameacasADamas;
+    return ameacas;
 }
 
 void AvaliarIndividuo(individuo &ind, int tam)
 {
-    int ameacasADamas = 0;
-
-    int qntDamas = 0;
+    vector<pair<int, int>> damas;
     for (int i = 0; i < SIZE; i++)
     {
         for (int j = 0; j < SIZE; j++)
         {
             if (ind.tab[{i, j}] == 1)
             {
-                ameacasADamas += ContarAmeacas(ind.tab, {i, j});
-                qntDamas++;
+                //ameacasADamas += ContarAmeacas(ind.tab, {i, j});
+                damas.push_back({i, j});
             }
         }
     }
+
+    int ameacasADamas = ContarAmeacas(damas);
+
     int penalidade = ameacasADamas * tam;
-    ind.valor = qntDamas - penalidade;
+    ind.valor = damas.size() - penalidade;
 }
 
-int AvaliarPopulacao(vector<individuo> &populacao, int tam)
+int AvaliarPopulacao(vector<individuo> &populacao)
 {
     vector<int> desempenhos;
 
     for (int i = 0; i < populacao.size(); i++)
     {
-        AvaliarIndividuo(populacao[i], tam);
+        AvaliarIndividuo(populacao[i], TAM);
 
         desempenhos.push_back(populacao[i].valor);
     }
@@ -202,14 +170,14 @@ void OrdenarPopulacao(vector<individuo> &populacao)
     populacao = populacaoOrdenada;
 }
 
-void Reproduzir(vector<individuo> &populacao, int tam)
+void Reproduzir(vector<individuo> &populacao)
 {
     // pegar os dois individuos com melhor valor
     individuo i1 = populacao[0];
     individuo i2 = populacao[1];
 
     // de 1 a SIZE * SIZE - 1 para pegar parte de um e parte do outro
-    int corte = rand() % (tam - 1) + 1;
+    int corte = rand() % (TAM - 1) + 1;
     // rand() % 63 -> 0 a 62 + 1 ->     1 a 63
 
     //tirar o ultimo e colocar esse novo
@@ -234,19 +202,12 @@ void Reproduzir(vector<individuo> &populacao, int tam)
         }
     }
 
-    /*
-    if (rand() % 3 == 1)
-    {
-        MutarIndividuo(filho);
-    }
-    */
-
     populacao.push_back(filho);
 }
 
-void MutarIndividuo(individuo &i, int tam)
+void MutarIndividuo(individuo &i)
 {
-    int mutar = rand() % tam;
+    int mutar = rand() % TAM;
 
     int linha = mutar / SIZE;
     int coluna = mutar % SIZE;
@@ -254,35 +215,33 @@ void MutarIndividuo(individuo &i, int tam)
     i.tab[{linha, coluna}] == 1 ? i.tab[{linha, coluna}] = 0 : i.tab[{linha, coluna}] = 1;
 }
 
-void MutarPopulacao(vector<individuo> &populacao, int tam)
+void MutarPopulacao(vector<individuo> &populacao)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
         double prob = ((double) rand() / ((double)RAND_MAX + 1));
         if (prob < prob_mutacao)
         {
-            MutarIndividuo(populacao[i], tam);
+            MutarIndividuo(populacao[i]);
         }
     }
 }
 
 void NDamas(int qntIndividuos)
 {
-    int tam = pow(SIZE, 2);
-    
     vector<individuo> populacao = GerarPopulacao(qntIndividuos);
-    cout << "populacao inicial:" << endl;
-    PrintarPopulacao(populacao);
+    //cout << "populacao inicial:" << endl;
+    //PrintarPopulacao(populacao);
 
-    int maiorAvaliacao = AvaliarPopulacao(populacao, tam);
+    int maiorAvaliacao = AvaliarPopulacao(populacao);
     int geracao = 0;
     while (maiorAvaliacao != SIZE)
     {
         //cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
-        Reproduzir(populacao, tam);
-        MutarPopulacao(populacao, tam);
-        maiorAvaliacao = AvaliarPopulacao(populacao, tam);
+        Reproduzir(populacao);
+        MutarPopulacao(populacao);
+        maiorAvaliacao = AvaliarPopulacao(populacao);
         geracao++;
     }
 
@@ -315,6 +274,7 @@ int main()
         return 0;
     }
 
+    TAM = pow(SIZE, 2);
     NDamas(qntIndividuos);
     return 0;
 }
