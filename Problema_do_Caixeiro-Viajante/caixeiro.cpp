@@ -206,11 +206,8 @@ void ReproduzirPopulacao(vector<individuo> &populacao)
     populacao.push_back(filho);
 }
 
-void MutarIndividuo(individuo &ind)
+vector<int> EscolherDuasPosicoesDiferentes()
 {
-    // escolher as duas posicoes que vao ser trocadas
-
-    // garantindo que as posicoes nao serao iguais
     vector<int> vertices;
     for (int i = 0; i < VERTICES; i++)
     {
@@ -224,10 +221,17 @@ void MutarIndividuo(individuo &ind)
     int v = rand() % (VERTICES - 1);
     v = vertices[v];
 
+    return {u, v};
+}
+
+void MutarIndividuo(individuo &ind)
+{
+    vector<int> posicoes = EscolherDuasPosicoesDiferentes();
+
     // trocar
-    int aux = ind.caminho[u];
-    ind.caminho[u] = ind.caminho[v];
-    ind.caminho[v] = aux;
+    int aux = ind.caminho[ posicoes[0] ];
+    ind.caminho[ posicoes[0] ] = ind.caminho[ posicoes[1] ];
+    ind.caminho[ posicoes[1] ] = aux;
 }
 
 void MutarPopulacao(vector<individuo> &populacao)
@@ -263,8 +267,6 @@ void CaixeiroViajante(int qntGeracoes)
     cout << "melhor:" << endl;
     PrintarIndividuo(melhor);
 }
-
-
 
 int main()
 {
