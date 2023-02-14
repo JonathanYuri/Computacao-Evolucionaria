@@ -30,6 +30,26 @@ int RetornarValorDaAresta(int u, int v)
     return grafo[{v, u}];
 }
 
+vector<int> EscolherNPosicoesDiferentes(int n)
+{
+    vector<int> posicoes;
+    vector<int> vertices;
+    for (int i = 0; i < VERTICES; i++)
+    {
+        vertices.push_back(i);
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        int pos = rand() % (VERTICES - i);
+        
+        posicoes.push_back(vertices[pos]);
+        vertices.erase(vertices.begin() + pos);
+    }
+
+    return posicoes;
+}
+
 bool ExisteNoCaminho(vector<int> caminho, int valor)
 {
     find(caminho.begin(), caminho.end(), valor) != caminho.end();
@@ -86,20 +106,12 @@ void PrintarPopulacao(vector<individuo> populacao)
 individuo GerarIndividuo()
 {
     individuo ind;
-
-    vector<int> vertices;
-    for (int i = 0; i < VERTICES; i++)
+    vector<int> caminho = EscolherNPosicoesDiferentes(VERTICES);
+    for (int i : caminho)
     {
-        vertices.push_back(i);
+        ind.caminho.push_back(i);
     }
 
-    for (int i = 0; i < VERTICES; i++)
-    {
-        int pos = rand() % (VERTICES - i);
-        
-        ind.caminho.push_back(vertices[pos]);
-        vertices.erase(vertices.begin() + pos);
-    }
     return ind;
 }
 
@@ -206,27 +218,9 @@ void ReproduzirPopulacao(vector<individuo> &populacao)
     populacao.push_back(filho);
 }
 
-vector<int> EscolherDuasPosicoesDiferentes()
-{
-    vector<int> vertices;
-    for (int i = 0; i < VERTICES; i++)
-    {
-        vertices.push_back(i);
-    }
-
-    int u = rand() % VERTICES;
-    u = vertices[u];
-    vertices.erase(vertices.begin() + u);
-
-    int v = rand() % (VERTICES - 1);
-    v = vertices[v];
-
-    return {u, v};
-}
-
 void MutarIndividuo(individuo &ind)
 {
-    vector<int> posicoes = EscolherDuasPosicoesDiferentes();
+    vector<int> posicoes = EscolherNPosicoesDiferentes(2);
 
     // trocar
     int aux = ind.caminho[ posicoes[0] ];
