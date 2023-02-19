@@ -6,5 +6,8 @@ all:
 caixeiro:
 	g++ Problema_do_Caixeiro-Viajante/caixeiro.cpp -o caixeiro.exe
 
+problema:
+	g++ Problema_da_Expressao-Matematica/expressao-matematica.cpp -o matematica.exe
+
 clean:
 	-del -rf *.exe
