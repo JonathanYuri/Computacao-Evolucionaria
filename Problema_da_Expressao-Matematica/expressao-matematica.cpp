@@ -11,7 +11,7 @@ using namespace std;
 struct Individuo {
     No inicial;
     vector<string> expressao;
-    int valor = 0;
+    long long int valor = 0;
     int quantidadeNos = 0;
 };
 
@@ -176,13 +176,6 @@ bool IsANumber(string str)
 
 long long int CalcularValor(vector<string> expr)
 {
-    // cout << "E: ";
-    // for (auto e : expr)
-    // {
-    //     cout << e << " ";
-    // }
-    // cout << endl;
-
     stack<string> valores;
     stack<string> operadores;
 
@@ -427,12 +420,22 @@ bool MutarNo(No &no, int posMutar, int &pos)
 
 void MutarIndividuo(Individuo &ind)
 {
+    Individuo indMutado = ind;
+
     int qntMutavel = 0;
-    QuantidadeDeMutaveis(ind.inicial, qntMutavel);
+    QuantidadeDeMutaveis(indMutado.inicial, qntMutavel);
 
     int posMutar = rand() % qntMutavel;
     int p = 0;
-    MutarNo(ind.inicial, posMutar, p);
+    MutarNo(indMutado.inicial, posMutar, p);
+
+    p = 0;
+    VerificarExpressao(indMutado, indMutado.inicial, p);
+    AvaliarIndividuo(indMutado);
+    if (indMutado.valor < ind.valor)
+    {
+        ind = indMutado;
+    }
 }
 
 void MutarPopulacao(vector<Individuo> &populacao)
@@ -459,6 +462,7 @@ void AcharExpressaoMatematica(int qntIndividuos)
     while (melhor != 0)
     {
         cout << "MELHOR: " << melhor << endl;
+
         // Ordenar
         OrdenarPopulacao(populacao);
 

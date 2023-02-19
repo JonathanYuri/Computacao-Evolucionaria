@@ -11,9 +11,9 @@ void T(No &c, int n)
 {
     c.atual = "T";
 
+    // Limitando o tamanho da arvore
     if (n > 10)
     {
-        //cout << "!!!!!!!!!!!!!!!!!!!!!!!! PARANDO !!!!!!!!!!!!!!!!!!!!!!!!!";
         c.valor = "D";
         No prox1;
         D(prox1);
