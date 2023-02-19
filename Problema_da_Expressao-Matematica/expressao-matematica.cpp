@@ -87,18 +87,6 @@ vector<Individuo> GerarPopulacao(int qntIndividuos)
     return populacao;
 }
 
-bool ExisteParentesis(vector<string> expr)
-{
-    for (auto e : expr)
-    {
-        if (e.compare("(") == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 string CalcularExpressao(string valor1, string operador, string valor2)
 {
     long long int v1 = stoll(valor1);
@@ -176,7 +164,6 @@ long long int CalcularValor(vector<string> expr)
     valor2 = valores.top(); valores.pop();
 
     string op = operadores.top(); operadores.pop();
-
     string valor = CalcularExpressao(valor2, op, valor1);
     valores.push(valor);
     
