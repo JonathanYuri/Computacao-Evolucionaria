@@ -12,29 +12,14 @@ int SIZE = 8;
 int TAM = 64;
 double prob_mutacao = 0.2;
 
-struct individuo {
+struct Individuo {
     map<pair<float, float>, int> tab;
     int valor = 0;
 };
 
-void RemoverDuplicatas(std::vector<int> &v)
+Individuo GerarIndividuo()
 {
-	std::vector<int>::iterator itr = v.begin();
-	unordered_set<int> s;
-
-	for (auto curr = v.begin(); curr != v.end(); ++curr)
-	{
-		if (s.insert(*curr).second) {
-			*itr++ = *curr;
-		}
-	}
-
-	v.erase(itr, v.end());
-}
-
-individuo GerarIndividuo()
-{
-    individuo ind;
+    Individuo ind;
     
     for (int i = 0; i < SIZE; i++)
     {
@@ -47,7 +32,7 @@ individuo GerarIndividuo()
     return ind;
 }
 
-void PrintarIndividuo(individuo ind)
+void PrintarIndividuo(Individuo ind)
 {
     for (int i = 0; i < SIZE; i++)
     {
@@ -60,7 +45,7 @@ void PrintarIndividuo(individuo ind)
     cout << endl;
 }
 
-void PrintarPopulacao(vector<individuo> populacao)
+void PrintarPopulacao(vector<Individuo> populacao)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
@@ -69,12 +54,12 @@ void PrintarPopulacao(vector<individuo> populacao)
     }
 }
 
-vector<individuo> GerarPopulacao(int qntIndividuos)
+vector<Individuo> GerarPopulacao(int qntIndividuos)
 {
-    vector<individuo> populacao;
+    vector<Individuo> populacao;
     for (int i = 0; i < qntIndividuos; i++)
     {
-        individuo ind = GerarIndividuo();
+        Individuo ind = GerarIndividuo();
         populacao.push_back(ind);
     }
 
@@ -105,7 +90,7 @@ int ContarAmeacas(vector<pair<int, int>> damas)
     return ameacas;
 }
 
-void AvaliarIndividuo(individuo &ind)
+void AvaliarIndividuo(Individuo &ind)
 {
     vector<pair<int, int>> damas;
     for (int i = 0; i < SIZE; i++)
@@ -126,7 +111,7 @@ void AvaliarIndividuo(individuo &ind)
     ind.valor = damas.size() - penalidade;
 }
 
-int AvaliarPopulacao(vector<individuo> &populacao)
+int AvaliarPopulacao(vector<Individuo> &populacao)
 {
     vector<int> desempenhos;
 
@@ -140,39 +125,18 @@ int AvaliarPopulacao(vector<individuo> &populacao)
     return *max_element(desempenhos.begin(), desempenhos.end());
 }
 
-void OrdenarPopulacao(vector<individuo> &populacao)
-{
-    // valor -> individuos, para recuperar os indices da populacao
-    map<int, vector<int>> valorIndividuos;
-    vector<int> desempenhos;
-
-    for (int i = 0; i < populacao.size(); i++)
-    {
-        desempenhos.push_back(populacao[i].valor);
-        valorIndividuos[populacao[i].valor].push_back(i);
-    }
-
-    // ordena
-    sort(desempenhos.begin(), desempenhos.end(), greater<int>());
-    RemoverDuplicatas(desempenhos);
-
-    vector<individuo> populacaoOrdenada;
-
-    // recupera os valores
-    for (int a : desempenhos)
-    {
-        for (auto ind : valorIndividuos[a])
-        {
-            populacaoOrdenada.push_back(populacao[ind]);
-        }
-    }
-
-    populacao = populacaoOrdenada;
+bool compararPorValor(const Individuo& a, const Individuo& b) {
+    return a.valor > b.valor;
 }
 
-individuo Herdar(individuo pai, individuo mae)
+void OrdenarPopulacao(vector<Individuo> &populacao)
 {
-    individuo filho;
+    sort(populacao.begin(), populacao.end(), compararPorValor);
+}
+
+Individuo Herdar(Individuo pai, Individuo mae)
+{
+    Individuo filho;
     // de 1 a SIZE * SIZE - 1 para pegar parte de um e parte do outro
     int corte = rand() % (TAM - 1) + 1;
 
@@ -196,27 +160,27 @@ individuo Herdar(individuo pai, individuo mae)
     return filho;
 }
 
-vector<individuo> GerarFilhos(individuo pai, individuo mae)
+vector<Individuo> GerarFilhos(Individuo pai, Individuo mae)
 {
-    individuo filho1 = Herdar(pai, mae);
-    individuo filho2 = Herdar(mae, pai);
+    Individuo filho1 = Herdar(pai, mae);
+    Individuo filho2 = Herdar(mae, pai);
 
     return {filho1, filho2};
 }
 
-void Reproduzir(vector<individuo> &populacao)
+void Reproduzir(vector<Individuo> &populacao)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
         for (int j = i + 1; j < populacao.size(); j++)
         {
-            individuo pai = populacao[i];
-            individuo mae = populacao[j];
+            Individuo pai = populacao[i];
+            Individuo mae = populacao[j];
 
-            vector<individuo> filhos = GerarFilhos(pai, mae);
+            vector<Individuo> filhos = GerarFilhos(pai, mae);
 
-            individuo filho1 = filhos[0];
-            individuo filho2 = filhos[1];
+            Individuo filho1 = filhos[0];
+            Individuo filho2 = filhos[1];
 
             AvaliarIndividuo(filho1);
             AvaliarIndividuo(filho2);
@@ -233,14 +197,14 @@ void Reproduzir(vector<individuo> &populacao)
     }
 }
 
-void MutarIndividuo(individuo &i)
+void MutarIndividuo(Individuo &i)
 {
     int mutar = rand() % TAM;
 
     int linha = mutar / SIZE;
     int coluna = mutar % SIZE;
 
-    individuo mutado = i;
+    Individuo mutado = i;
     mutado.tab[{linha, coluna}] == 1 ? mutado.tab[{linha, coluna}] = 0 : mutado.tab[{linha, coluna}] = 1;
 
     AvaliarIndividuo(mutado);
@@ -250,7 +214,7 @@ void MutarIndividuo(individuo &i)
     }
 }
 
-void MutarPopulacao(vector<individuo> &populacao)
+void MutarPopulacao(vector<Individuo> &populacao)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
@@ -264,7 +228,7 @@ void MutarPopulacao(vector<individuo> &populacao)
 
 void NDamas(int qntIndividuos)
 {
-    vector<individuo> populacao = GerarPopulacao(qntIndividuos);
+    vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
     //cout << "populacao inicial:" << endl;
     //PrintarPopulacao(populacao);
 
