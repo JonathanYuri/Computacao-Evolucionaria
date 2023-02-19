@@ -1,4 +1,4 @@
-all:
+ndamas:
 	g++ Problema_das_N-damas/Algoritmo_Genetico/ndamas.cpp -o ndamasG.exe
 	g++ Problema_das_N-damas/Algoritmo_Genetico/ndamasv2.cpp -o ndamasG2.exe
 	g++ Problema_das_N-damas/Backtracking/ndamas.cpp -o ndamas.exe
