@@ -118,46 +118,6 @@ string CalcularExpressao(string valor1, string operador, string valor2)
     }
 }
 
-/*
-string CalcularValor(vector<string> expr)
-{
-    vector<string> e;
-    for (int i = 0; i < expr.size(); i++)
-    {
-        if (expr[i].compare("(") == 0)
-        {
-            if (i + 4 < expr.size() && expr[i + 4].compare(")") == 0)
-            {
-                cout << "expressao: " << expr[i + 1] << " " << expr[i + 2] << " " << expr[i + 3] << endl;
-
-                string resultado = CalcularExpressao(expr[i + 1], expr[i + 2], expr[i + 3]);
-                e.push_back(resultado);
-
-                if (i + 5 >= expr.size())
-                {
-                    break;
-                }
-                i = i + 5;
-            }
-        }
-
-        e.push_back(expr[i]);
-    }
-
-    cout << "E: ";
-    for (auto c : e)
-    {
-        cout << c << " ";
-    }
-
-    bool existeParenteses = ExisteParentesis(e);
-    if (existeParenteses)
-    {
-        return CalcularValor(e);
-    }
-    return CalcularExpressao(e[0], e[1], e[2]);
-}*/
-
 bool IsAOperator(string str)
 {
     return str.compare("+") == 0 || str.compare("-") == 0 || str.compare("*") == 0;
@@ -431,6 +391,7 @@ void MutarIndividuo(Individuo &ind)
     MutarNo(indMutado.inicial, posMutar, p);
 
     p = 0;
+    indMutado.expressao = {};
     VerificarExpressao(indMutado, indMutado.inicial, p);
     AvaliarIndividuo(indMutado);
     if (indMutado.valor < ind.valor)
