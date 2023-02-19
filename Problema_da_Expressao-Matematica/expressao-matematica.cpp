@@ -16,6 +16,7 @@ struct Individuo {
 };
 
 int OBJETIVO = 0;
+double prob_mutacao = 0.2;
 
 void PrintarNo(No no)
 {
@@ -440,15 +441,12 @@ void MutarIndividuo(Individuo &ind)
 
 void MutarPopulacao(vector<Individuo> &populacao)
 {
-    for (int i = 0; i < populacao.size(); i++)
+    for (Individuo &ind : populacao)
     {
-        Individuo ind = populacao[i];
-        if (rand() % 4 == 0)
+        double prob = ((double) rand() / ((double)RAND_MAX + 1));
+        if (prob < prob_mutacao)
         {
-            MutarIndividuo(populacao[i]);
-            int p = 0;
-            populacao[i].expressao = {};
-            VerificarExpressao(populacao[i], populacao[i].inicial, p);
+            MutarIndividuo(ind);
         }
     }
 }
