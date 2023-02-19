@@ -13,7 +13,7 @@ using namespace std;
 int VERTICES = 8;
 int UNDEFINED = -1;
 
-struct individuo {
+struct Individuo {
     vector<int> caminho;
     int valor = 0;
 };
@@ -67,22 +67,7 @@ void AdicionarNoCaminho(vector<int> &caminho, int valor)
     }
 }
 
-void RemoverDuplicatas(std::vector<int> &v)
-{
-	std::vector<int>::iterator itr = v.begin();
-	unordered_set<int> s;
-
-	for (auto curr = v.begin(); curr != v.end(); ++curr)
-	{
-		if (s.insert(*curr).second) {
-			*itr++ = *curr;
-		}
-	}
-
-	v.erase(itr, v.end());
-}
-
-void PrintarIndividuo(individuo ind)
+void PrintarIndividuo(Individuo ind)
 {
     cout << "caminho: ";
     for (int i = 0; i < ind.caminho.size(); i++)
@@ -93,7 +78,7 @@ void PrintarIndividuo(individuo ind)
     cout << endl;
 }
 
-void PrintarPopulacao(vector<individuo> populacao)
+void PrintarPopulacao(vector<Individuo> populacao)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
@@ -103,9 +88,9 @@ void PrintarPopulacao(vector<individuo> populacao)
     }
 }
 
-individuo GerarIndividuo()
+Individuo GerarIndividuo()
 {
-    individuo ind;
+    Individuo ind;
     vector<int> caminho = EscolherNPosicoesDiferentes(VERTICES);
     for (int i : caminho)
     {
@@ -115,9 +100,9 @@ individuo GerarIndividuo()
     return ind;
 }
 
-vector<individuo> GerarPopulacao(int qntIndividuos)
+vector<Individuo> GerarPopulacao(int qntIndividuos)
 {
-    vector<individuo> populacao;
+    vector<Individuo> populacao;
     for (int i = 0; i < qntIndividuos; i++)
     {
         populacao.push_back(GerarIndividuo());
@@ -125,7 +110,7 @@ vector<individuo> GerarPopulacao(int qntIndividuos)
     return populacao;
 }
 
-void AvaliarIndividuo(individuo &ind)
+void AvaliarIndividuo(Individuo &ind)
 {
     int custo = 0;
     for (int i = 0; i < ind.caminho.size() - 1; i++)
@@ -140,7 +125,7 @@ void AvaliarIndividuo(individuo &ind)
     ind.valor = custo;
 }
 
-void AvaliarPopulacao(vector<individuo> &populacao)
+void AvaliarPopulacao(vector<Individuo> &populacao)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
@@ -148,40 +133,20 @@ void AvaliarPopulacao(vector<individuo> &populacao)
     }
 }
 
-void OrdenarPopulacao(vector<individuo> &populacao)
+bool compararPorValor(const Individuo &a, const Individuo &b)
 {
-    // valor -> individuos, para recuperar os indices da populacao
-    map<int, vector<int>> valorIndividuos;
-    vector<int> desempenhos;
-
-    for (int i = 0; i < populacao.size(); i++)
-    {
-        desempenhos.push_back(populacao[i].valor);
-        valorIndividuos[populacao[i].valor].push_back(i);
-    }
-
-    // ordena
-    sort(desempenhos.begin(), desempenhos.end());
-    RemoverDuplicatas(desempenhos);
-
-    vector<individuo> populacaoOrdenada;
-
-    // recupera os valores
-    for (int a : desempenhos)
-    {
-        for (auto ind : valorIndividuos[a])
-        {
-            populacaoOrdenada.push_back(populacao[ind]);
-        }
-    }
-
-    populacao = populacaoOrdenada;
+    return a.valor < b.valor;
 }
 
-individuo GerarFilho(individuo pai, individuo mae)
+void OrdenarPopulacao(vector<Individuo> &populacao)
+{
+    sort(populacao.begin(), populacao.end(), compararPorValor);
+}
+
+Individuo GerarFilho(Individuo pai, Individuo mae)
 {
     int qntPosicoesHerdadas = 3;
-    individuo filho;
+    Individuo filho;
 
     for (int i = 0; i < VERTICES; i++)
     {
@@ -207,18 +172,18 @@ individuo GerarFilho(individuo pai, individuo mae)
     return filho;
 }
 
-void ReproduzirPopulacao(vector<individuo> &populacao)
+void ReproduzirPopulacao(vector<Individuo> &populacao)
 {
-    individuo i1 = populacao[0];
-    individuo i2 = populacao[1];
+    Individuo i1 = populacao[0];
+    Individuo i2 = populacao[1];
 
-    individuo filho = GerarFilho(i1, i2);
+    Individuo filho = GerarFilho(i1, i2);
 
     populacao.pop_back();
     populacao.push_back(filho);
 }
 
-void MutarIndividuo(individuo &ind)
+void MutarIndividuo(Individuo &ind)
 {
     vector<int> posicoes = EscolherNPosicoesDiferentes(2);
 
@@ -228,7 +193,7 @@ void MutarIndividuo(individuo &ind)
     ind.caminho[ posicoes[1] ] = aux;
 }
 
-void MutarPopulacao(vector<individuo> &populacao)
+void MutarPopulacao(vector<Individuo> &populacao)
 {
     for (int i = 0; i < populacao.size(); i++)
     {
@@ -238,10 +203,10 @@ void MutarPopulacao(vector<individuo> &populacao)
 
 void CaixeiroViajante(int qntGeracoes)
 {
-    vector<individuo> populacao = GerarPopulacao(10);
+    vector<Individuo> populacao = GerarPopulacao(10);
     PrintarPopulacao(populacao);
 
-    individuo melhor;
+    Individuo melhor;
     for (int i = 0; i < qntGeracoes; i++)
     {
         //cout << melhor.valor << endl;
