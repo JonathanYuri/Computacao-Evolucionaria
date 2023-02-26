@@ -4,7 +4,7 @@
 #include <ctime>
 #include <stack>
 
-#include "gramatica.cpp"
+#include "./gramatica.cpp"
 
 using namespace std;
 
@@ -224,9 +224,7 @@ No PegarNoNaPos(No atual, int pos, int &posAtual)
     }
 
     No no;
-    no.atual = "NULL";
-    no.prox = {};
-    no.valor = "NULL";
+    no = CriarNo("NULL", "NULL", {});
     return no;
 }
 
@@ -260,11 +258,8 @@ Individuo GerarFilho(Individuo pai, Individuo mae)
 
     int posNo = rand() % menorNos;
 
-    int p = 0;
-    No noDaMae = PegarNoNaPos(mae.inicial, posNo, p);
-
-    p = 0;
-    No noDoPai = PegarNoNaPos(pai.inicial, posNo, p);
+    int p = 0;  No noDaMae = PegarNoNaPos(mae.inicial, posNo, p);
+    p = 0;  No noDoPai = PegarNoNaPos(pai.inicial, posNo, p);
 
     int qntNos = 0;
     
@@ -272,11 +267,10 @@ Individuo GerarFilho(Individuo pai, Individuo mae)
         IsANumber(noDoPai.valor) && IsANumber(noDaMae.valor))
     {
         filho.inicial = pai.inicial;
-        p = 0;
-        SubstituirNoDaPos(filho.inicial, noDaMae, posNo, p);
 
-        qntNos = 0;
-        VerificarExpressao(filho, filho.inicial, qntNos);
+        p = 0;  SubstituirNoDaPos(filho.inicial, noDaMae, posNo, p);
+        qntNos = 0; VerificarExpressao(filho, filho.inicial, qntNos);
+
         filho.quantidadeNos = qntNos;
         AvaliarIndividuo(filho);
     }
@@ -310,7 +304,7 @@ void ReproduzirPopulacao(vector<Individuo> &populacao)
 
 void QuantidadeDeMutaveis(No no, int &qntMutavel)
 {
-    if (IsANumber(no.valor) || IsAOperator(no.valor))
+    if (no.atual.compare(VALOR) == 0 || no.atual.compare(OPERADOR) == 0)
     {
         qntMutavel++;
         return;
@@ -324,21 +318,21 @@ void QuantidadeDeMutaveis(No no, int &qntMutavel)
 
 bool MutarNo(No &no, int posMutar, int &pos)
 {
-    if (IsANumber(no.valor) || IsAOperator(no.valor))
+    if (no.atual.compare(VALOR) == 0 || no.atual.compare(OPERADOR) == 0)
     {
         pos++;
     }
 
     if (pos == posMutar)
     {
-        if (IsANumber(no.valor))
+        if (no.atual.compare(VALOR) == 0)
         {
             vector<int> numeros = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
             numeros.erase(numeros.begin() + stoi(no.valor));
             no.valor = to_string(numeros[rand() % 9]);
         }
 
-        else if (IsAOperator(no.valor))
+        else if (no.atual.compare(OPERADOR) == 0)
         {
             vector<string> operadores = {"+", "*", "-"};
             for (int i = 0; i < operadores.size(); i++)
@@ -370,15 +364,13 @@ void MutarIndividuo(Individuo &ind)
 {
     Individuo indMutado = ind;
 
-    int qntMutavel = 0;
-    QuantidadeDeMutaveis(indMutado.inicial, qntMutavel);
+    int qntMutavel = 0; QuantidadeDeMutaveis(indMutado.inicial, qntMutavel);
 
     int posMutar = rand() % qntMutavel;
-    int p = 0;
-    MutarNo(indMutado.inicial, posMutar, p);
 
-    p = 0;
-    indMutado.expressao = {};
+    int p = 0;  MutarNo(indMutado.inicial, posMutar, p);
+    p = 0;  indMutado.expressao = {};
+
     VerificarExpressao(indMutado, indMutado.inicial, p);
     AvaliarIndividuo(indMutado);
     if (indMutado.valor < ind.valor)
