@@ -4,7 +4,7 @@
 #include <ctime>
 #include <stack>
 
-#include "./Regras/index.cpp"
+#include "gramatica.cpp"
 
 using namespace std;
 

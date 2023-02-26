@@ -1,7 +1,5 @@
-#include <vector>
 #include <string>
-
-#pragma once
+#include <vector>
 
 using namespace std;
 
@@ -10,7 +8,3 @@ struct No {
     string valor;
     vector<No> prox;
 };
-
-void S(No &c, int n);
-void T(No &c, int n);
-void D(No &c);
