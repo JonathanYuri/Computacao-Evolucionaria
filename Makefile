@@ -9,5 +9,8 @@ caixeiro:
 expressao:
 	g++ Problema_da_Expressao-Matematica/expressao-matematica.cpp -o matematica.exe
 
+hp:
+	g++ Problema_HP/hp.cpp -o hp.exe
+
 clean:
 	-del -rf *.exe
