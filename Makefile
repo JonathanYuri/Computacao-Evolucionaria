@@ -10,6 +10,7 @@ ndamas:
 
 caixeiro:
 	g++ $(CAIXEIRO_DIR)/caixeiro.cpp -o caixeiro.exe
+	./caixeiro.exe $(CAIXEIRO_DIR)/caixeiroEntrada.txt
 
 expressao:
 	g++ $(EXPRESSAO_DIR)/expressao-matematica.cpp -o matematica.exe

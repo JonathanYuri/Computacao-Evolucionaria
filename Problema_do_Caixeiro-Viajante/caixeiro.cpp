@@ -227,12 +227,12 @@ void CaixeiroViajante(int qntGeracoes)
     PrintarIndividuo(melhor);
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     srand((unsigned) time(NULL));
     ifstream file;
 
-    file.open("caixeiroEntrada.txt");
+    file.open(argv[argc - 1]);
     if (!file)
     {
         cout << "Arquivo caixeiroEntrada.txt nao pode ser aberto" << endl;
