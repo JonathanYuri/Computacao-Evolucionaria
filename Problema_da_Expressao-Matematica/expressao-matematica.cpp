@@ -280,24 +280,30 @@ Individuo GerarFilho(Individuo pai, Individuo mae)
 
 void ReproduzirPopulacao(vector<Individuo> &populacao)
 {
-    Individuo pai = populacao[0];
-    Individuo mae = populacao[1];
-
-    Individuo filho1 = GerarFilho(pai, mae);
-    Individuo filho2 = GerarFilho(mae, pai);
-
-    if (filho1.quantidadeNos != 0)
+    for (int i = 0; i < populacao.size(); i++)
     {
-        if (filho1.valor < pai.valor)
+        for (int j = i + 1; j < populacao.size(); j++)
         {
-            populacao[0] = filho1;
-        }
-    }
-    if (filho2.quantidadeNos != 0)
-    {
-        if (filho2.valor < mae.valor)
-        {
-            populacao[1] = filho2;
+            Individuo pai = populacao[i];
+            Individuo mae = populacao[j];
+
+            Individuo filho1 = GerarFilho(pai, mae);
+            Individuo filho2 = GerarFilho(mae, pai);
+
+            if (filho1.quantidadeNos != 0)
+            {
+                if (filho1.valor < pai.valor)
+                {
+                    populacao[i] = filho1;
+                }
+            }
+            if (filho2.quantidadeNos != 0)
+            {
+                if (filho2.valor < mae.valor)
+                {
+                    populacao[j] = filho2;
+                }
+            }
         }
     }
 }
