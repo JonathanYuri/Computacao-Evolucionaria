@@ -41,6 +41,49 @@ bool ExisteNaCadeia(vector<pair<pair<int, int>, char>> cadeia, pair<int, int> el
     return false;
 }
 
+void PrintarMatriz(vector<pair<pair<int, int>, char>> cadeia)
+{
+    int menorX, maiorX, menorY, maiorY;
+
+    for (int i = 0; i < cadeia.size(); i++)
+    {
+        if (i == 0)
+        {
+            maiorX = cadeia[i].first.first;
+            menorX = cadeia[i].first.first;
+
+            maiorY = cadeia[i].first.second;
+            menorY = cadeia[i].first.second;
+            continue;
+        }
+
+        if (cadeia[i].first.first > maiorX) maiorX = cadeia[i].first.first;
+        if (cadeia[i].first.second > maiorY) maiorY = cadeia[i].first.second;
+
+        if (cadeia[i].first.first < menorX) menorX = cadeia[i].first.first;
+        if (cadeia[i].first.second < menorY) menorY = cadeia[i].first.second;
+    }
+
+    for (int i = menorX; i <= maiorX; i++)
+    {
+        cout << " - ";
+        for (int j = menorY; j <= maiorY; j++)
+        {
+            int pos = PosicaoNaCadeia(cadeia, {i, j});
+            if (pos != -1) // existe na cadeia
+            {
+                cout << "(" << i << ", " << j << "): " << cadeia[pos].second;
+            }
+            else
+            {
+                cout << "(" << i << ", " << j << "): X";
+            }
+            cout << " - ";
+        }
+        cout << endl;
+    }
+}
+
 void PrintarIndividuo(Individuo ind)
 {
     for (auto it = ind.cadeia.begin(); it != ind.cadeia.end(); it++)
@@ -260,26 +303,21 @@ void ReproduzirPopulacao(vector<Individuo> &populacao)
             Individuo mae = populacao[j];
 
             Individuo filho1 = GerarFilho(pai, mae);
-            if (filho1.valor == -1)
-            {
-                // monstro
-                continue;
-            }
-
             Individuo filho2 = GerarFilho(mae, pai);
-            if (filho2.valor == -1)
-            {
-                // monstro
-                continue;
-            }
 
-            if (filho1.valor > populacao[i].valor)
+            if (filho1.valor != -1)
             {
-                populacao[i] = filho1;
+                if (filho1.valor > populacao[i].valor)
+                {
+                    populacao[i] = filho1;
+                }
             }
-            if (filho2.valor > populacao[j].valor)
+            if (filho2.valor != -1)
             {
-                populacao[j] = filho2;
+                if (filho2.valor > populacao[j].valor)
+                {
+                    populacao[j] = filho2;
+                }
             }
         }
     }
@@ -384,6 +422,7 @@ void MutarPopulacao(vector<Individuo> &populacao)
 void HP(int qntIndividuos, int qntGeracoes)
 {
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
+    Individuo melhor;
     //PrintarPopulacao(populacao);
 
     for (int i = 0; i < qntGeracoes; i++)
@@ -392,15 +431,24 @@ void HP(int qntIndividuos, int qntGeracoes)
         AvaliarPopulacao(populacao);
 
         OrdenarPopulacao(populacao);
+        if (i == 0) melhor = populacao[0];
+        else
+        {
+            if (populacao[0].valor > melhor.valor)    melhor = populacao[0];
+        }
 
         ReproduzirPopulacao(populacao);
 
         MutarPopulacao(populacao);
     }
 
+    AvaliarPopulacao(populacao);
     OrdenarPopulacao(populacao);
+    if (populacao[0].valor > melhor.valor)    melhor = populacao[0];
+
     cout << "INDIVIDUO MAIS EVOLUIDO:" << endl;
-    PrintarIndividuo(populacao[0]);
+    PrintarIndividuo(melhor);
+    PrintarMatriz(melhor.cadeia);
 }
 
 int main()
