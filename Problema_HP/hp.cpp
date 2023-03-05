@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <ctime>
 #include <vector>
@@ -14,6 +15,8 @@ struct Individuo {
     vector<pair<pair<int, int>, char>> cadeia;
     int valor = -1;
 };
+
+ofstream arquivo;
 
 double prob_mutacao = 0.2;
 
@@ -64,23 +67,29 @@ void PrintarMatriz(vector<pair<pair<int, int>, char>> cadeia)
         if (cadeia[i].first.second < menorY) menorY = cadeia[i].first.second;
     }
 
-    for (int i = menorX; i <= maiorX; i++)
+    arquivo << menorX << " " << maiorX << " " << menorY << " " << maiorY << endl;
+
+    for (int j = maiorY; j >= menorY; j--)
     {
-        cout << " - ";
-        for (int j = menorY; j <= maiorY; j++)
+        //cout << " - ";
+        for (int i = menorX; i <= maiorX; i++)
         {
             int pos = PosicaoNaCadeia(cadeia, {i, j});
             if (pos != -1) // existe na cadeia
             {
                 cout << "(" << i << ", " << j << "): " << cadeia[pos].second;
+                //cout << cadeia[pos].second;
+                arquivo << cadeia[pos].second << " ";
             }
             else
             {
                 cout << "(" << i << ", " << j << "): X";
+                //cout << "X";
+                arquivo << "X"<< " ";
             }
-            cout << " - ";
         }
         cout << endl;
+        arquivo << endl;
     }
 }
 
@@ -327,7 +336,7 @@ void ReproduzirPopulacao(vector<Individuo> &populacao)
 
 void MutarIndividuo(Individuo &ind)
 {
-    int pos = rand() % str.size();
+    int pos = (rand() % (str.size() - 1)) + 1;
     //cout << "pos mutar: " << pos << endl;
 
     vector<pair<int, int>> posicoesVizinhasAo1;
@@ -468,7 +477,11 @@ int main()
         str.push_back(toupper(c));
     }
 
+    arquivo.open("Problema_HP/matrix.txt");
+
     HP(10, qntGeracoes);
+
+    arquivo.close();
 
     return 0;
 }
