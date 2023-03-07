@@ -436,8 +436,8 @@ void HP(int qntIndividuos, int qntGeracoes)
 
     for (int i = 0; i < qntGeracoes; i++)
     {
-        cout << "Geracao: " << i << endl;
         AvaliarPopulacao(populacao);
+        cout << "Geracao: " << i << ", Maior Avaliacao: " << melhor.valor << endl;
 
         OrdenarPopulacao(populacao);
         if (i == 0) melhor = populacao[0];
