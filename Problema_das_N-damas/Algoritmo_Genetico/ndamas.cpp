@@ -90,7 +90,7 @@ int ContarAmeacas(vector<pair<int, int>> damas)
     return ameacas;
 }
 
-void AvaliarIndividuo(Individuo &ind, int tam)
+void AvaliarIndividuo(Individuo &ind)
 {
     vector<pair<int, int>> damas;
     for (int i = 0; i < SIZE; i++)
@@ -107,7 +107,7 @@ void AvaliarIndividuo(Individuo &ind, int tam)
 
     int ameacasADamas = ContarAmeacas(damas);
 
-    int penalidade = ameacasADamas * tam;
+    int penalidade = ameacasADamas * TAM;
     ind.valor = damas.size() - penalidade;
 }
 
@@ -117,7 +117,7 @@ int AvaliarPopulacao(vector<Individuo> &populacao)
 
     for (int i = 0; i < populacao.size(); i++)
     {
-        AvaliarIndividuo(populacao[i], TAM);
+        AvaliarIndividuo(populacao[i]);
 
         desempenhos.push_back(populacao[i].valor);
     }
@@ -134,20 +134,12 @@ void OrdenarPopulacao(vector<Individuo> &populacao)
     sort(populacao.begin(), populacao.end(), compararPorValor);
 }
 
-void Reproduzir(vector<Individuo> &populacao)
+Individuo GerarFilho(Individuo pai, Individuo mae)
 {
-    // pegar os dois individuos com melhor valor
-    Individuo i1 = populacao[0];
-    Individuo i2 = populacao[1];
-
+    Individuo filho;
     // de 1 a SIZE * SIZE - 1 para pegar parte de um e parte do outro
     int corte = rand() % (TAM - 1) + 1;
     // rand() % 63 -> 0 a 62 + 1 ->     1 a 63
-
-    //tirar o ultimo e colocar esse novo
-    populacao.pop_back();
-
-    Individuo filho;
 
     int qnt = 0;
     for (int i = 0; i < SIZE; i++)
@@ -156,17 +148,39 @@ void Reproduzir(vector<Individuo> &populacao)
         {
             if (qnt < corte)
             {
-                filho.tab.insert({{i, j}, i1.tab[{i,j}]});
+                filho.tab.insert({{i, j}, pai.tab[{i,j}]});
             }
             else
             {
-                filho.tab.insert({{i, j}, i2.tab[{i,j}]});
+                filho.tab.insert({{i, j}, mae.tab[{i,j}]});
             }
             qnt++;
         }
     }
 
-    populacao.push_back(filho);
+    AvaliarIndividuo(filho);
+    return filho;
+}
+
+void Reproduzir(vector<Individuo> &populacao)
+{
+    for (int i = 0; i < populacao.size(); i++)
+    {
+        for (int j = i + 1; j < populacao.size(); j++)
+        {
+            Individuo filho1 = GerarFilho(populacao[i], populacao[j]);
+            Individuo filho2 = GerarFilho(populacao[j], populacao[i]);
+
+            if (filho1.valor > populacao[i].valor)
+            {
+                populacao[i] = filho1;
+            }
+            if (filho2.valor > populacao[j].valor)
+            {
+                populacao[j] = filho2;
+            }
+        }
+    }
 }
 
 void MutarIndividuo(Individuo &i)
