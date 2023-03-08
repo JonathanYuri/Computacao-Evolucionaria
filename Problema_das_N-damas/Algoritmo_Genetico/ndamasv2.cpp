@@ -13,11 +13,6 @@ double prob_mutacao = 0.2;
 double prob_reproducao = 0.5;
 double taxa_aumento_prob = 0.1;
 
-double menor_prob_mutacao = 0.1;
-double menor_prob_reproducao = 0.1;
-double maior_prob_mutacao = 0.9;
-double maior_prob_reproducao = 0.9;
-
 struct Individuo {
     vector<int> posicaoNaLinha;
     int valor = 0;
@@ -232,11 +227,11 @@ void RecalcularTaxas(vector<Individuo> populacao)
     if (diversidade > 0.5)
     {
         // - mut + rep
-        if (prob_mutacao - taxa_aumento_prob > menor_prob_mutacao)
+        if (prob_mutacao - taxa_aumento_prob > 0)
         {
             prob_mutacao -= taxa_aumento_prob;
         }
-        if (prob_reproducao + taxa_aumento_prob < maior_prob_reproducao)
+        if (prob_reproducao + taxa_aumento_prob < 1)
         {
             prob_reproducao += taxa_aumento_prob;
         }
@@ -244,11 +239,11 @@ void RecalcularTaxas(vector<Individuo> populacao)
     else
     {
         // + mut - rep
-        if (prob_mutacao + taxa_aumento_prob < maior_prob_mutacao)
+        if (prob_mutacao + taxa_aumento_prob < 1)
         {
             prob_mutacao += taxa_aumento_prob;
         }
-        if (prob_reproducao - taxa_aumento_prob > menor_prob_reproducao)
+        if (prob_reproducao - taxa_aumento_prob > 0)
         {
             prob_reproducao -= taxa_aumento_prob;
         }
@@ -282,6 +277,9 @@ void NDamas(int qntIndividuos)
 int main()
 {
     srand((unsigned) time(NULL));
+
+    prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
+    prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
 
     cout << "Digite o tamanho do tabuleiro (> 3): ";
     cin >> SIZE;
