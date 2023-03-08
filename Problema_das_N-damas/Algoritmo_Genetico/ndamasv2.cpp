@@ -40,9 +40,10 @@ Individuo GerarIndividuo()
 
 void PrintarIndividuo(Individuo ind)
 {
+    cout << "Damas: {linha, coluna}" << endl;
     for (int i = 0; i < SIZE; i++)
     {
-        cout << ind.posicaoNaLinha[i] << " ";
+        cout << "{" << i << ", " << ind.posicaoNaLinha[i] << "}" << endl;
     }
     cout << endl;
 }
@@ -270,7 +271,7 @@ void NDamas(int qntIndividuos)
 
     OrdenarPopulacao(populacao);
 
-    cout << "geracoes: " << geracao << " individuo: ";
+    cout << "geracoes: " << geracao << endl << "individuo:" << endl;
     PrintarIndividuo(populacao[0]);
 }
 
