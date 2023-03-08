@@ -14,6 +14,7 @@ caixeiro:
 
 expressao:
 	g++ $(EXPRESSAO_DIR)/expressao-matematica.cpp -o matematica.exe
+	g++ $(EXPRESSAO_DIR)/expressao-matematicav2.cpp -o matematicav2.exe
 
 hp:
 	g++ $(HP_DIR)/hp.cpp -o hp.exe
