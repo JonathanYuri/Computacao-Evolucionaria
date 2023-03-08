@@ -9,11 +9,11 @@
 using namespace std;
 
 int SIZE = 8;
-int TAM = 64;
 double prob_mutacao = 0.2;
+double prob_reproducao = 0.5;
 
 struct Individuo {
-    map<pair<float, float>, int> tab;
+    vector<int> posicaoNaLinha;
     int valor = 0;
 };
 
@@ -21,12 +21,17 @@ Individuo GerarIndividuo()
 {
     Individuo ind;
     
+    vector<int> possibilidades;
     for (int i = 0; i < SIZE; i++)
     {
-        for (int j = 0; j < SIZE; j++)
-        {
-            ind.tab[{i, j}] = rand() % 2;
-        }
+        possibilidades.push_back(i);
+    }
+
+    for (int i = 0; i < SIZE; i++)
+    {
+        int escolha = rand() % (SIZE - i);
+        ind.posicaoNaLinha.push_back(possibilidades[escolha]);
+        possibilidades.erase(possibilidades.begin() + escolha);
     }
 
     return ind;
@@ -36,11 +41,7 @@ void PrintarIndividuo(Individuo ind)
 {
     for (int i = 0; i < SIZE; i++)
     {
-        for (int j = 0; j < SIZE; j++)
-        {
-            cout << ind.tab[{i, j}] << " ";
-        }
-        cout << endl;
+        cout << ind.posicaoNaLinha[i] << " ";
     }
     cout << endl;
 }
@@ -95,19 +96,12 @@ void AvaliarIndividuo(Individuo &ind)
     vector<pair<int, int>> damas;
     for (int i = 0; i < SIZE; i++)
     {
-        for (int j = 0; j < SIZE; j++)
-        {
-            if (ind.tab[{i, j}] == 1)
-            {
-                //ameacasADamas += ContarAmeacas(ind.tab, {i, j});
-                damas.push_back({i, j});
-            }
-        }
+        damas.push_back({i, ind.posicaoNaLinha[i]});
     }
 
     int ameacasADamas = ContarAmeacas(damas);
 
-    int penalidade = ameacasADamas * TAM;
+    int penalidade = ameacasADamas * SIZE;
     ind.valor = damas.size() - penalidade;
 }
 
@@ -137,25 +131,22 @@ void OrdenarPopulacao(vector<Individuo> &populacao)
 Individuo GerarFilho(Individuo pai, Individuo mae)
 {
     Individuo filho;
-    // de 1 a SIZE * SIZE - 1 para pegar parte de um e parte do outro
-    int corte = rand() % (TAM - 1) + 1;
+    // de 1 a SIZE - 1 para pegar parte de um e parte do outro
+    int corte = rand() % (SIZE - 1) + 1;
     // rand() % 63 -> 0 a 62 + 1 ->     1 a 63
 
     int qnt = 0;
     for (int i = 0; i < SIZE; i++)
     {
-        for (int j = 0; j < SIZE; j++)
+        if (qnt < corte)
         {
-            if (qnt < corte)
-            {
-                filho.tab.insert({{i, j}, pai.tab[{i,j}]});
-            }
-            else
-            {
-                filho.tab.insert({{i, j}, mae.tab[{i,j}]});
-            }
-            qnt++;
+            filho.posicaoNaLinha.push_back(pai.posicaoNaLinha[i]);
         }
+        else
+        {
+            filho.posicaoNaLinha.push_back(mae.posicaoNaLinha[i]);
+        }
+        qnt++;
     }
 
     AvaliarIndividuo(filho);
@@ -168,16 +159,20 @@ void Reproduzir(vector<Individuo> &populacao)
     {
         for (int j = i + 1; j < populacao.size(); j++)
         {
-            Individuo filho1 = GerarFilho(populacao[i], populacao[j]);
-            Individuo filho2 = GerarFilho(populacao[j], populacao[i]);
+            double prob = ((double) rand() / ((double)RAND_MAX + 1));
+            if (prob < prob_reproducao)
+            {
+                Individuo filho1 = GerarFilho(populacao[i], populacao[j]);
+                Individuo filho2 = GerarFilho(populacao[j], populacao[i]);
 
-            if (filho1.valor > populacao[i].valor)
-            {
-                populacao[i] = filho1;
-            }
-            if (filho2.valor > populacao[j].valor)
-            {
-                populacao[j] = filho2;
+                if (filho1.valor > populacao[i].valor)
+                {
+                    populacao[i] = filho1;
+                }
+                if (filho2.valor > populacao[j].valor)
+                {
+                    populacao[j] = filho2;
+                }
             }
         }
     }
@@ -185,12 +180,9 @@ void Reproduzir(vector<Individuo> &populacao)
 
 void MutarIndividuo(Individuo &i)
 {
-    int mutar = rand() % TAM;
+    int mutar = rand() % SIZE;
 
-    int linha = mutar / SIZE;
-    int coluna = mutar % SIZE;
-
-    i.tab[{linha, coluna}] == 1 ? i.tab[{linha, coluna}] = 0 : i.tab[{linha, coluna}] = 1;
+    i.posicaoNaLinha[mutar] = rand() % SIZE;
 }
 
 void MutarPopulacao(vector<Individuo> &populacao)
@@ -208,15 +200,14 @@ void MutarPopulacao(vector<Individuo> &populacao)
 void NDamas(int qntIndividuos)
 {
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
-    //cout << "populacao inicial:" << endl;
-    //PrintarPopulacao(populacao);
 
     int maiorAvaliacao = AvaliarPopulacao(populacao);
     int geracao = 0;
     while (maiorAvaliacao != SIZE)
     {
-        //cout << maiorAvaliacao << endl;
+        cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
+
         Reproduzir(populacao);
         MutarPopulacao(populacao);
         maiorAvaliacao = AvaliarPopulacao(populacao);
@@ -252,7 +243,6 @@ int main()
         return 0;
     }
 
-    TAM = pow(SIZE, 2);
     NDamas(qntIndividuos);
     return 0;
 }
