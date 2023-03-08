@@ -11,6 +11,14 @@ using namespace std;
 int SIZE = 8;
 int TAM = 64;
 double prob_mutacao = 0.2;
+double prob_reproducao = 0.5;
+
+double taxa_aumento_prob = 0.1;
+
+double menor_prob_mutacao = 0.1;
+double menor_prob_reproducao = 0.1;
+double maior_prob_mutacao = 0.9;
+double maior_prob_reproducao = 0.9;
 
 struct Individuo {
     map<pair<float, float>, int> tab;
@@ -134,11 +142,12 @@ void OrdenarPopulacao(vector<Individuo> &populacao)
     sort(populacao.begin(), populacao.end(), compararPorValor);
 }
 
-Individuo Herdar(Individuo pai, Individuo mae)
+Individuo GerarFilho(Individuo pai, Individuo mae)
 {
     Individuo filho;
     // de 1 a SIZE * SIZE - 1 para pegar parte de um e parte do outro
     int corte = rand() % (TAM - 1) + 1;
+    // rand() % 63 -> 0 a 62 + 1 ->     1 a 63
 
     int qnt = 0;
     for (int i = 0; i < SIZE; i++)
@@ -157,15 +166,8 @@ Individuo Herdar(Individuo pai, Individuo mae)
         }
     }
 
+    AvaliarIndividuo(filho);
     return filho;
-}
-
-vector<Individuo> GerarFilhos(Individuo pai, Individuo mae)
-{
-    Individuo filho1 = Herdar(pai, mae);
-    Individuo filho2 = Herdar(mae, pai);
-
-    return {filho1, filho2};
 }
 
 void Reproduzir(vector<Individuo> &populacao)
@@ -174,24 +176,20 @@ void Reproduzir(vector<Individuo> &populacao)
     {
         for (int j = i + 1; j < populacao.size(); j++)
         {
-            Individuo pai = populacao[i];
-            Individuo mae = populacao[j];
-
-            vector<Individuo> filhos = GerarFilhos(pai, mae);
-
-            Individuo filho1 = filhos[0];
-            Individuo filho2 = filhos[1];
-
-            AvaliarIndividuo(filho1);
-            AvaliarIndividuo(filho2);
-
-            if (pai.valor < filho1.valor)
+            double prob = ((double) rand() / ((double)RAND_MAX + 1));
+            if (prob < prob_reproducao)
             {
-                populacao[i] = filho1;
-            }
-            if (mae.valor < filho2.valor)
-            {
-                populacao[j] = filho2;
+                Individuo filho1 = GerarFilho(populacao[i], populacao[j]);
+                Individuo filho2 = GerarFilho(populacao[j], populacao[i]);
+
+                if (filho1.valor > populacao[i].valor)
+                {
+                    populacao[i] = filho1;
+                }
+                if (filho2.valor > populacao[j].valor)
+                {
+                    populacao[j] = filho2;
+                }
             }
         }
     }
@@ -204,14 +202,7 @@ void MutarIndividuo(Individuo &i)
     int linha = mutar / SIZE;
     int coluna = mutar % SIZE;
 
-    Individuo mutado = i;
-    mutado.tab[{linha, coluna}] == 1 ? mutado.tab[{linha, coluna}] = 0 : mutado.tab[{linha, coluna}] = 1;
-
-    AvaliarIndividuo(mutado);
-    if (i.valor < mutado.valor)
-    {
-        i = mutado;
-    }
+    i.tab[{linha, coluna}] == 1 ? i.tab[{linha, coluna}] = 0 : i.tab[{linha, coluna}] = 1;
 }
 
 void MutarPopulacao(vector<Individuo> &populacao)
@@ -221,7 +212,60 @@ void MutarPopulacao(vector<Individuo> &populacao)
         double prob = ((double) rand() / ((double)RAND_MAX + 1));
         if (prob < prob_mutacao)
         {
+            cout << "MUTOU" << endl;
             MutarIndividuo(populacao[i]);
+        }
+    }
+}
+
+double CalcularDiversidade(vector<Individuo> populacao)
+{
+    double max_iguais = 0;
+    double qnt_iguais = 0;
+    for (int i = 0; i < populacao.size(); i++)
+    {
+        for (int j = i + 1; j < populacao.size(); j++)
+        {
+            if (populacao[i].tab == populacao[j].tab)
+            {
+                qnt_iguais++;
+            }
+            max_iguais++;
+        }
+    }
+
+    cout << "QNT IGUAIS: " << qnt_iguais << " MAX IGUAIS: " << max_iguais << " DIVERSIDADE: " << abs((qnt_iguais / max_iguais) - 1.0) << endl;
+
+    // quando qnt_iguais = 0 => diversidade = 1, quando qnt_iguais = max_iguais => diversidade = 0
+
+    return abs((qnt_iguais / max_iguais) - 1.0);
+}
+
+void RecalcularTaxas(vector<Individuo> populacao)
+{
+    double diversidade = CalcularDiversidade(populacao);
+    if (diversidade > 0.5)
+    {
+        // - mut + rep
+        if (prob_mutacao - taxa_aumento_prob > menor_prob_mutacao)
+        {
+            prob_mutacao -= taxa_aumento_prob;
+        }
+        if (prob_reproducao + taxa_aumento_prob < maior_prob_reproducao)
+        {
+            prob_reproducao += taxa_aumento_prob;
+        }
+    }
+    else
+    {
+        // + mut - rep
+        if (prob_mutacao + taxa_aumento_prob < maior_prob_mutacao)
+        {
+            prob_mutacao += taxa_aumento_prob;
+        }
+        if (prob_reproducao - taxa_aumento_prob > menor_prob_reproducao)
+        {
+            prob_reproducao -= taxa_aumento_prob;
         }
     }
 }
@@ -237,7 +281,11 @@ void NDamas(int qntIndividuos)
     while (maiorAvaliacao != SIZE)
     {
         cout << maiorAvaliacao << endl;
+        cout << "MUTACAO: " << prob_mutacao << ", REPRODUCAO: " << prob_reproducao << endl;
+        //if (geracao == 5)   exit(0);
         OrdenarPopulacao(populacao);
+        RecalcularTaxas(populacao);
+
         Reproduzir(populacao);
         MutarPopulacao(populacao);
         maiorAvaliacao = AvaliarPopulacao(populacao);
