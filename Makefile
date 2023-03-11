@@ -8,6 +8,10 @@ ndamas:
 	g++ $(NDAMAS_DIR)/Algoritmo_Genetico/ndamasv2.cpp -o ndamasG2.exe
 	g++ $(NDAMAS_DIR)/Backtracking/ndamas.cpp -o ndamas.exe
 
+	./ndamasG.exe
+	./ndamasG2.exe
+	python3 $(NDAMAS_DIR)/Algoritmo_Genetico/grafico.py $(NDAMAS_DIR)/Algoritmo_Genetico/pontos.txt $(NDAMAS_DIR)/Algoritmo_Genetico/pontos-ADP.txt
+
 caixeiro:
 	g++ $(CAIXEIRO_DIR)/caixeiro.cpp -o caixeiro.exe
 	./caixeiro.exe $(CAIXEIRO_DIR)/caixeiroEntrada.txt

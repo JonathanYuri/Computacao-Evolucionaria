@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <ctime>
 #include <unordered_set>
@@ -251,8 +252,21 @@ void RecalcularTaxas(vector<Individuo> populacao)
     }
 }
 
+double CalcularAdaptacaoMedia(vector<Individuo> populacao)
+{
+    double media = 0;
+    for (Individuo ind : populacao)
+    {
+        media += ind.valor;
+    }
+    media /= populacao.size();
+    return media;
+}
+
 void NDamas(int qntIndividuos)
 {
+    ofstream arquivo;
+    arquivo.open("Problema_das_N-damas/Algoritmo_Genetico/pontos-ADP.txt");
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
 
     int maiorAvaliacao = AvaliarPopulacao(populacao);
@@ -261,6 +275,9 @@ void NDamas(int qntIndividuos)
     {
         cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
+
+        double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
+        arquivo << geracao << " " << adaptacaoMedia << endl;
         RecalcularTaxas(populacao);
 
         Reproduzir(populacao);
@@ -271,8 +288,12 @@ void NDamas(int qntIndividuos)
 
     OrdenarPopulacao(populacao);
 
+    double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
+    arquivo << geracao << " " << adaptacaoMedia << endl;
+
     cout << "geracoes: " << geracao << endl << "individuo:" << endl;
     PrintarIndividuo(populacao[0]);
+    arquivo.close();
 }
 
 int main()

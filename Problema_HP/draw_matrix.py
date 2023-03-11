@@ -1,8 +1,6 @@
 import sys
-import numpy as np
 import pandas as pd
-from IPython.display import display, HTML
-import matplotlib.pyplot as plt
+from IPython.display import display
 
 nome_arquivo = sys.argv[1]
 arq = open(nome_arquivo)
@@ -41,4 +39,5 @@ for j in range(maiorY, menorY - 1, -1):
     rows.append(j)
 
 df = pd.DataFrame(data, index=rows)
+arq.close()
 display(df)

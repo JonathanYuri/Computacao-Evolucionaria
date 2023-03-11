@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <ctime>
 #include <unordered_set>
@@ -39,9 +40,10 @@ Individuo GerarIndividuo()
 
 void PrintarIndividuo(Individuo ind)
 {
+    cout << "Damas: {linha, coluna}" << endl;
     for (int i = 0; i < SIZE; i++)
     {
-        cout << ind.posicaoNaLinha[i] << " ";
+        cout << "{" << i << ", " << ind.posicaoNaLinha[i] << "}" << endl;
     }
     cout << endl;
 }
@@ -197,8 +199,21 @@ void MutarPopulacao(vector<Individuo> &populacao)
     }
 }
 
-void NDamas(int qntIndividuos)
+double CalcularAdaptacaoMedia(vector<Individuo> populacao)
 {
+    double media = 0;
+    for (Individuo ind : populacao)
+    {
+        media += ind.valor;
+    }
+    media /= populacao.size();
+    return media;
+}
+
+void NDamas(int qntIndividuos)       
+{
+    ofstream arquivo;
+    arquivo.open("Problema_das_N-damas/Algoritmo_Genetico/pontos.txt");
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
 
     int maiorAvaliacao = AvaliarPopulacao(populacao);
@@ -208,6 +223,9 @@ void NDamas(int qntIndividuos)
         cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
 
+        double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
+        arquivo << geracao << " " << adaptacaoMedia << endl;
+
         Reproduzir(populacao);
         MutarPopulacao(populacao);
         maiorAvaliacao = AvaliarPopulacao(populacao);
@@ -216,8 +234,12 @@ void NDamas(int qntIndividuos)
 
     OrdenarPopulacao(populacao);
 
+    double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
+    arquivo << geracao << " " << adaptacaoMedia << endl;
+
     cout << "geracoes: " << geracao << " individuo:" << endl;
     PrintarIndividuo(populacao[0]);
+    arquivo.close();
 }
 
 int main()
