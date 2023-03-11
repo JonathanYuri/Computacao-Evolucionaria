@@ -220,7 +220,7 @@ void NDamas(int qntIndividuos)
     int geracao = 0;
     while (maiorAvaliacao != SIZE)
     {
-        cout << maiorAvaliacao << endl;
+        //cout << maiorAvaliacao << endl;
         OrdenarPopulacao(populacao);
 
         double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);

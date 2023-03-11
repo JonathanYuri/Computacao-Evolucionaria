@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <vector>
 #include <ctime>
@@ -397,18 +398,35 @@ void MutarPopulacao(vector<Individuo> &populacao)
     }
 }
 
+double CalcularAdaptacaoMedia(vector<Individuo> populacao)
+{
+    double media = 0;
+    for (Individuo ind : populacao)
+    {
+        media += ind.valor;
+    }
+    media /= populacao.size();
+    return media;
+}
+
 void AcharExpressaoMatematica(int qntIndividuos)
 {
+    ofstream arquivo;
+    arquivo.open("Problema_da_Expressao-Matematica/pontos.txt");
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
     PrintarPopulacao(populacao);
 
     long long int melhor = AvaliarPopulacao(populacao);
+    int geracao = 0;
     while (melhor != 0)
     {
-        cout << "MELHOR: " << melhor << endl;
+        //cout << "MELHOR: " << melhor << endl;
 
         // Ordenar
         OrdenarPopulacao(populacao);
+
+        double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
+        arquivo << geracao << " " << adaptacaoMedia << endl;
 
         // Reproduzir
         ReproduzirPopulacao(populacao);
@@ -418,10 +436,16 @@ void AcharExpressaoMatematica(int qntIndividuos)
 
         // Avaliar
         melhor = AvaliarPopulacao(populacao);
+        geracao++;
     }
-    cout << "ACHEI A EXPRESSAO" << endl;
+    cout << "ACHEI A EXPRESSAO em " << geracao << " geracoes" << endl;
     OrdenarPopulacao(populacao);
+
+    double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
+    arquivo << geracao << " " << adaptacaoMedia << endl;
+
     PrintarIndividuo(populacao[0]);
+    arquivo.close();
 }
 
 int main()
