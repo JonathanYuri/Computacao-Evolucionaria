@@ -187,21 +187,12 @@ void AvaliarIndividuo(Individuo &ind)
 
 long long int AvaliarPopulacao(vector<Individuo> &populacao)
 {
-    long long int melhor;
-    for (int i = 0; i < populacao.size(); i++)
-    {
-        AvaliarIndividuo(populacao[i]);
+    long long int melhor = 0;
+    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
+        AvaliarIndividuo(*it);
 
-        if (i == 0)
-        {
-            melhor = populacao[i].valor;
-        }
-        else
-        {
-            if (populacao[i].valor < melhor)
-            {
-                melhor = populacao[i].valor;
-            }
+        if (it == populacao.begin() || it->valor < melhor) {
+            melhor = it->valor;
         }
     }
     return melhor;
@@ -405,10 +396,45 @@ void MutarPopulacao(vector<Individuo> &populacao)
     }
 }
 
-void RecalcularTaxas(vector<Individuo> populacao)
+void RecalcularTaxas(vector<Individuo> &populacao)
 {
-    
-    
+    int min = 0, max = 0;
+    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
+        if (it == populacao.begin() || it->valor < min) {
+            min = it->valor;
+        }
+
+        if (it == populacao.begin() || it->valor > max) {
+            max = it->valor;
+        }
+    }
+    int media = (min + max) / 2;
+
+    for (Individuo &ind : populacao)
+    {
+        if (ind.valor > media)
+        {
+            if (ind.prob_reproducao + taxa_aumento_prob < 1)
+            {
+                ind.prob_reproducao += taxa_aumento_prob;
+            }
+            if (ind.prob_mutacao - taxa_aumento_prob > 0)
+            {
+                ind.prob_mutacao -= taxa_aumento_prob;
+            }
+        }
+        else
+        {
+            if (ind.prob_mutacao + taxa_aumento_prob < 1)
+            {
+                ind.prob_mutacao += taxa_aumento_prob;
+            }
+            if (ind.prob_reproducao - taxa_aumento_prob > 0)
+            {
+                ind.prob_reproducao -= taxa_aumento_prob;
+            }
+        }
+    }
 }
 
 double CalcularAdaptacaoMedia(vector<Individuo> populacao)
@@ -434,9 +460,6 @@ void AcharExpressaoMatematica(int qntIndividuos)
     while (melhor != 0)
     {
         //cout << "MELHOR: " << melhor << endl;
-
-        // Ordenar
-        OrdenarPopulacao(populacao);
 
         double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
         arquivo << geracao << " " << adaptacaoMedia << endl;

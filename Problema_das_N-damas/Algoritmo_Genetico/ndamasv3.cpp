@@ -210,22 +210,15 @@ void MutarPopulacao(vector<Individuo> &populacao)
 void RecalcularTaxas(vector<Individuo> &populacao)
 {
     int min = 0, max = 0;
-    for (int i = 0; i < populacao.size(); i++)
-    {
-        if (i == 0) {
-            min = populacao[i].valor;
-            max = populacao[i].valor;
+    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
+        if (it == populacao.begin() || it->valor < min) {
+            min = it->valor;
         }
-        else {
-            if (populacao[i].valor < min) {
-                min = populacao[i].valor;
-            }
-            if (populacao[i].valor > max) {
-                max = populacao[i].valor;
-            }
+
+        if (it == populacao.begin() || it->valor > max) {
+            max = it->valor;
         }
     }
-
     int media = (max + min) / 2;
 
     for (Individuo &ind : populacao)

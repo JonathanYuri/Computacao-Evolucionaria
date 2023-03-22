@@ -218,14 +218,14 @@ void AvaliarIndividuo(Individuo &ind)
     ind.valor = valor;
 }
 
-Individuo AvaliarPopulacao(vector<Individuo> &populacao)
+int AvaliarPopulacao(vector<Individuo> &populacao)
 {
-    Individuo melhor;
+    int melhor = 0;
     for (auto it = populacao.begin(); it != populacao.end(); ++it) {
         AvaliarIndividuo(*it);
 
-        if (it == populacao.begin() || it->valor > melhor.valor) {
-            melhor = *it;
+        if (it == populacao.begin() || it->valor > melhor) {
+            melhor = it->valor;
         }
     }
     return melhor;
@@ -436,24 +436,24 @@ void MutarPopulacao(vector<Individuo> &populacao)
 void HP(int qntIndividuos, int qntGeracoes)
 {
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
-    Individuo melhor;
+    int melhor = 0;
     //PrintarPopulacao(populacao);
 
     for (int i = 0; i < qntGeracoes; i++)
     {
         melhor = AvaliarPopulacao(populacao);
-        cout << "Geracao: " << i << ", Maior Avaliacao: " << melhor.valor << endl;
+        cout << "Geracao: " << i << ", Maior Avaliacao: " << melhor << endl;
 
         ReproduzirPopulacao(populacao);
 
         MutarPopulacao(populacao);
     }
 
-    melhor = AvaliarPopulacao(populacao);
+    OrdenarPopulacao(populacao);
 
     cout << "INDIVIDUO MAIS EVOLUIDO:" << endl;
-    PrintarIndividuo(melhor);
-    PrintarMatriz(melhor.cadeia);
+    PrintarIndividuo(populacao[0]);
+    PrintarMatriz(populacao[0].cadeia);
 }
 
 int main()
