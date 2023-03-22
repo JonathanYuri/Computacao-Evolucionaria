@@ -109,16 +109,15 @@ void AvaliarIndividuo(Individuo &ind)
 
 int AvaliarPopulacao(vector<Individuo> &populacao)
 {
-    vector<int> desempenhos;
+    int melhor = 0;
+    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
+        AvaliarIndividuo(*it);
 
-    for (int i = 0; i < populacao.size(); i++)
-    {
-        AvaliarIndividuo(populacao[i]);
-
-        desempenhos.push_back(populacao[i].valor);
+        if (it == populacao.begin() || it->valor > melhor) {
+            melhor = it->valor;
+        }
     }
-
-    return *max_element(desempenhos.begin(), desempenhos.end());
+    return melhor;
 }
 
 bool compararPorValor(const Individuo& a, const Individuo& b) {

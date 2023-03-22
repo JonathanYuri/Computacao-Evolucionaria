@@ -218,12 +218,17 @@ void AvaliarIndividuo(Individuo &ind)
     ind.valor = valor;
 }
 
-void AvaliarPopulacao(vector<Individuo> &populacao)
+Individuo AvaliarPopulacao(vector<Individuo> &populacao)
 {
-    for (auto &ind : populacao)
-    {
-        AvaliarIndividuo(ind);
+    Individuo melhor;
+    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
+        AvaliarIndividuo(*it);
+
+        if (it == populacao.begin() || it->valor > melhor.valor) {
+            melhor = *it;
+        }
     }
+    return melhor;
 }
 
 // ORDENAR
@@ -436,24 +441,15 @@ void HP(int qntIndividuos, int qntGeracoes)
 
     for (int i = 0; i < qntGeracoes; i++)
     {
-        AvaliarPopulacao(populacao);
+        melhor = AvaliarPopulacao(populacao);
         cout << "Geracao: " << i << ", Maior Avaliacao: " << melhor.valor << endl;
-
-        OrdenarPopulacao(populacao);
-        if (i == 0) melhor = populacao[0];
-        else
-        {
-            if (populacao[0].valor > melhor.valor)    melhor = populacao[0];
-        }
 
         ReproduzirPopulacao(populacao);
 
         MutarPopulacao(populacao);
     }
 
-    AvaliarPopulacao(populacao);
-    OrdenarPopulacao(populacao);
-    if (populacao[0].valor > melhor.valor)    melhor = populacao[0];
+    melhor = AvaliarPopulacao(populacao);
 
     cout << "INDIVIDUO MAIS EVOLUIDO:" << endl;
     PrintarIndividuo(melhor);

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <ctime>
+#include <cmath>
 #include <stack>
 
 #include "./gramatica.cpp"
@@ -14,10 +15,14 @@ struct Individuo {
     vector<string> expressao;
     long long int valor = 0;
     int quantidadeNos = 0;
+
+    double prob_mutacao;
+    double prob_reproducao;
 };
 
 int OBJETIVO = 0;
-double prob_mutacao = 0.2;
+
+double taxa_aumento_prob = 0.1;
 
 void PrintarNo(No no)
 {
@@ -73,6 +78,9 @@ Individuo GerarIndividuo()
     int qntNos = 0;
     VerificarExpressao(i, i.inicial, qntNos);
     i.quantidadeNos = qntNos;
+
+    i.prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
+    i.prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
 
     return i;
 }
@@ -179,12 +187,21 @@ void AvaliarIndividuo(Individuo &ind)
 
 long long int AvaliarPopulacao(vector<Individuo> &populacao)
 {
-    long long int melhor = 0;
-    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
-        AvaliarIndividuo(*it);
+    long long int melhor;
+    for (int i = 0; i < populacao.size(); i++)
+    {
+        AvaliarIndividuo(populacao[i]);
 
-        if (it == populacao.begin() || it->valor < melhor) {
-            melhor = it->valor;
+        if (i == 0)
+        {
+            melhor = populacao[i].valor;
+        }
+        else
+        {
+            if (populacao[i].valor < melhor)
+            {
+                melhor = populacao[i].valor;
+            }
         }
     }
     return melhor;
@@ -276,24 +293,30 @@ void ReproduzirPopulacao(vector<Individuo> &populacao)
     {
         for (int j = i + 1; j < populacao.size(); j++)
         {
-            Individuo pai = populacao[i];
-            Individuo mae = populacao[j];
+            double prob = ((double) rand() / ((double)RAND_MAX + 1));
 
-            Individuo filho1 = GerarFilho(pai, mae);
-            Individuo filho2 = GerarFilho(mae, pai);
-
-            if (filho1.quantidadeNos != 0)
+            double prob_rep = (populacao[i].prob_reproducao + populacao[j].prob_reproducao) / 2;
+            if (prob < prob_rep)
             {
-                if (filho1.valor < pai.valor)
+                Individuo pai = populacao[i];
+                Individuo mae = populacao[j];
+
+                Individuo filho1 = GerarFilho(pai, mae);
+                Individuo filho2 = GerarFilho(mae, pai);
+
+                if (filho1.quantidadeNos != 0)
                 {
-                    populacao[i] = filho1;
+                    if (filho1.valor < pai.valor)
+                    {
+                        populacao[i] = filho1;
+                    }
                 }
-            }
-            if (filho2.quantidadeNos != 0)
-            {
-                if (filho2.valor < mae.valor)
+                if (filho2.quantidadeNos != 0)
                 {
-                    populacao[j] = filho2;
+                    if (filho2.valor < mae.valor)
+                    {
+                        populacao[j] = filho2;
+                    }
                 }
             }
         }
@@ -360,21 +383,14 @@ bool MutarNo(No &no, int posMutar, int &pos)
 
 void MutarIndividuo(Individuo &ind)
 {
-    Individuo indMutado = ind;
-
-    int qntMutavel = 0; QuantidadeDeMutaveis(indMutado.inicial, qntMutavel);
+    int qntMutavel = 0; QuantidadeDeMutaveis(ind.inicial, qntMutavel);
 
     int posMutar = rand() % qntMutavel;
 
-    int p = 0;  MutarNo(indMutado.inicial, posMutar, p);
-    p = 0;  indMutado.expressao = {};
+    int p = 0;  MutarNo(ind.inicial, posMutar, p);
+    p = 0;  ind.expressao = {};
 
-    VerificarExpressao(indMutado, indMutado.inicial, p);
-    AvaliarIndividuo(indMutado);
-    if (indMutado.valor < ind.valor)
-    {
-        ind = indMutado;
-    }
+    VerificarExpressao(ind, ind.inicial, p);
 }
 
 void MutarPopulacao(vector<Individuo> &populacao)
@@ -382,11 +398,17 @@ void MutarPopulacao(vector<Individuo> &populacao)
     for (Individuo &ind : populacao)
     {
         double prob = ((double) rand() / ((double)RAND_MAX + 1));
-        if (prob < prob_mutacao)
+        if (prob < ind.prob_mutacao)
         {
             MutarIndividuo(ind);
         }
     }
+}
+
+void RecalcularTaxas(vector<Individuo> populacao)
+{
+    
+    
 }
 
 double CalcularAdaptacaoMedia(vector<Individuo> populacao)
@@ -403,7 +425,7 @@ double CalcularAdaptacaoMedia(vector<Individuo> populacao)
 void AcharExpressaoMatematica(int qntIndividuos)
 {
     ofstream arquivo;
-    arquivo.open("Problema_da_Expressao-Matematica/pontos.txt");
+    arquivo.open("Problema_da_Expressao-Matematica/pontos-ADP.txt");
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
     PrintarPopulacao(populacao);
 
@@ -413,8 +435,13 @@ void AcharExpressaoMatematica(int qntIndividuos)
     {
         //cout << "MELHOR: " << melhor << endl;
 
+        // Ordenar
+        OrdenarPopulacao(populacao);
+
         double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
         arquivo << geracao << " " << adaptacaoMedia << endl;
+
+        RecalcularTaxas(populacao);
 
         // Reproduzir
         ReproduzirPopulacao(populacao);

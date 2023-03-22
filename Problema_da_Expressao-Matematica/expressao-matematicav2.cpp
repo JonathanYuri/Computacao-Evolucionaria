@@ -183,21 +183,12 @@ void AvaliarIndividuo(Individuo &ind)
 
 long long int AvaliarPopulacao(vector<Individuo> &populacao)
 {
-    long long int melhor;
-    for (int i = 0; i < populacao.size(); i++)
-    {
-        AvaliarIndividuo(populacao[i]);
+    long long int melhor = 0;
+    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
+        AvaliarIndividuo(*it);
 
-        if (i == 0)
-        {
-            melhor = populacao[i].valor;
-        }
-        else
-        {
-            if (populacao[i].valor < melhor)
-            {
-                melhor = populacao[i].valor;
-            }
+        if (it == populacao.begin() || it->valor < melhor) {
+            melhor = it->valor;
         }
     }
     return melhor;
@@ -470,9 +461,6 @@ void AcharExpressaoMatematica(int qntIndividuos)
     while (melhor != 0)
     {
         //cout << "MELHOR: " << melhor << endl;
-
-        // Ordenar
-        OrdenarPopulacao(populacao);
 
         double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
         arquivo << geracao << " " << adaptacaoMedia << endl;
