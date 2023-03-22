@@ -278,7 +278,6 @@ void NDamas(int qntIndividuos)
     while (maiorAvaliacao != SIZE)
     {
         //cout << maiorAvaliacao << endl;
-        OrdenarPopulacao(populacao);
 
         double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
         arquivo << geracao << " " << adaptacaoMedia << endl;
