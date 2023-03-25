@@ -46,4 +46,4 @@ hp:
 	python3 grafico.py $(HP_DIR)/pontos.txt $(HP_DIR)/pontos-ADP.txt $(HP_DIR)/pontos-AAE2.txt
 
 clean:
-	-del -rf *.exe
+	del $(OUTDIR)/*.exe
