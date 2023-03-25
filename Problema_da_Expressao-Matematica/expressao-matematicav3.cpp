@@ -451,7 +451,7 @@ double CalcularAdaptacaoMedia(vector<Individuo> populacao)
 void AcharExpressaoMatematica(int qntIndividuos)
 {
     ofstream arquivo;
-    arquivo.open("Problema_da_Expressao-Matematica/pontos-ADP.txt");
+    arquivo.open("Problema_da_Expressao-Matematica/pontos-AAE2.txt");
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
     PrintarPopulacao(populacao);
 
