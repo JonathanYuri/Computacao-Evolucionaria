@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <ctime>
+#include <cmath>
 #include <vector>
 #include <map>
 
@@ -14,11 +15,13 @@ vector<pair<int, int>> seq = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
 struct Individuo {
     vector<pair<pair<int, int>, char>> cadeia;
     int valor = -1;
+    double prob_mutacao = 0.5;
+    double prob_reproducao = 0.5;
 };
 
 ofstream arquivo;
 
-double prob_mutacao = 0.2;
+double taxa_aumento_prob = 0.1;
 
 int PosicaoNaCadeia(vector<pair<pair<int, int>, char>> cadeia, pair<int, int> elem)
 {
@@ -159,6 +162,9 @@ Individuo GerarIndividuo()
 
     ind.cadeia.push_back({atual, str[0]});
     PosicionarLetra(ind.cadeia, atual, 1);
+
+    ind.prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
+    ind.prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
     
     return ind;
 }
@@ -303,6 +309,9 @@ Individuo GerarFilho(Individuo pai, Individuo mae)
         }
     }
 
+    filho.prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
+    filho.prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
+
     AvaliarIndividuo(filho);
     return filho;
 }
@@ -313,24 +322,29 @@ void ReproduzirPopulacao(vector<Individuo> &populacao)
     {
         for (int j = i+1; j < populacao.size(); j++)
         {
-            Individuo pai = populacao[i];
-            Individuo mae = populacao[j];
-
-            Individuo filho1 = GerarFilho(pai, mae);
-            Individuo filho2 = GerarFilho(mae, pai);
-
-            if (filho1.valor != -1)
+            double prob = ((double) rand() / ((double)RAND_MAX + 1));
+            double prob_rep = (populacao[i].prob_reproducao + populacao[j].prob_reproducao) / 2;
+            if (prob < prob_rep)
             {
-                if (filho1.valor > populacao[i].valor)
+                Individuo pai = populacao[i];
+                Individuo mae = populacao[j];
+
+                Individuo filho1 = GerarFilho(pai, mae);
+                Individuo filho2 = GerarFilho(mae, pai);
+
+                if (filho1.valor != -1)
                 {
-                    populacao[i] = filho1;
+                    if (filho1.valor > populacao[i].valor)
+                    {
+                        populacao[i] = filho1;
+                    }
                 }
-            }
-            if (filho2.valor != -1)
-            {
-                if (filho2.valor > populacao[j].valor)
+                if (filho2.valor != -1)
                 {
-                    populacao[j] = filho2;
+                    if (filho2.valor > populacao[j].valor)
+                    {
+                        populacao[j] = filho2;
+                    }
                 }
             }
         }
@@ -426,7 +440,7 @@ void MutarPopulacao(vector<Individuo> &populacao)
     for (auto &ind : populacao)
     {
         double prob = ((double) rand() / ((double)RAND_MAX + 1));
-        if (prob < prob_mutacao)
+        if (prob < ind.prob_mutacao)
         {
             MutarIndividuo(ind);
         }
@@ -444,10 +458,51 @@ double CalcularAdaptacaoMedia(vector<Individuo> populacao)
     return media;
 }
 
+void RecalcularTaxas(vector<Individuo> &populacao)
+{
+    int min = 0, max = 0;
+    for (auto it = populacao.begin(); it != populacao.end(); ++it) {
+        if (it == populacao.begin() || it->valor < min) {
+            min = it->valor;
+        }
+
+        if (it == populacao.begin() || it->valor > max) {
+            max = it->valor;
+        }
+    }
+    int media = (max + min) / 2;
+
+    for (Individuo &ind : populacao)
+    {
+        if (ind.valor > media)
+        {
+            if (ind.prob_reproducao + taxa_aumento_prob < 1)
+            {
+                ind.prob_reproducao += taxa_aumento_prob;
+            }
+            if (ind.prob_mutacao - taxa_aumento_prob > 0)
+            {
+                ind.prob_mutacao -= taxa_aumento_prob;
+            }
+        }
+        else
+        {
+            if (ind.prob_mutacao + taxa_aumento_prob < 1)
+            {
+                ind.prob_mutacao += taxa_aumento_prob;
+            }
+            if (ind.prob_reproducao - taxa_aumento_prob > 0)
+            {
+                ind.prob_reproducao -= taxa_aumento_prob;
+            }
+        }
+    }
+}
+
 void HP(int qntIndividuos, int qntGeracoes)
 {
     ofstream arquivo;
-    arquivo.open("Problema_HP/pontos.txt");
+    arquivo.open("Problema_HP/pontos-AAE2.txt");
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
     int melhor = 0;
     //PrintarPopulacao(populacao);
@@ -459,6 +514,8 @@ void HP(int qntIndividuos, int qntGeracoes)
 
         double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
         arquivo << i << " " << adaptacaoMedia << endl;
+
+        RecalcularTaxas(populacao);
 
         ReproduzirPopulacao(populacao);
 

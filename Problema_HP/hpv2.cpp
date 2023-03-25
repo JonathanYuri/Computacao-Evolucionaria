@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <ctime>
+#include <cmath>
 #include <vector>
 #include <map>
 
@@ -19,6 +20,8 @@ struct Individuo {
 ofstream arquivo;
 
 double prob_mutacao = 0.2;
+double prob_reproducao = 0.9;
+double taxa_aumento_prob = 0.1;
 
 int PosicaoNaCadeia(vector<pair<pair<int, int>, char>> cadeia, pair<int, int> elem)
 {
@@ -313,24 +316,28 @@ void ReproduzirPopulacao(vector<Individuo> &populacao)
     {
         for (int j = i+1; j < populacao.size(); j++)
         {
-            Individuo pai = populacao[i];
-            Individuo mae = populacao[j];
-
-            Individuo filho1 = GerarFilho(pai, mae);
-            Individuo filho2 = GerarFilho(mae, pai);
-
-            if (filho1.valor != -1)
+            double prob = ((double) rand() / ((double)RAND_MAX + 1));
+            if (prob < prob_reproducao)
             {
-                if (filho1.valor > populacao[i].valor)
+                Individuo pai = populacao[i];
+                Individuo mae = populacao[j];
+
+                Individuo filho1 = GerarFilho(pai, mae);
+                Individuo filho2 = GerarFilho(mae, pai);
+
+                if (filho1.valor != -1)
                 {
-                    populacao[i] = filho1;
+                    if (filho1.valor > populacao[i].valor)
+                    {
+                        populacao[i] = filho1;
+                    }
                 }
-            }
-            if (filho2.valor != -1)
-            {
-                if (filho2.valor > populacao[j].valor)
+                if (filho2.valor != -1)
                 {
-                    populacao[j] = filho2;
+                    if (filho2.valor > populacao[j].valor)
+                    {
+                        populacao[j] = filho2;
+                    }
                 }
             }
         }
@@ -444,10 +451,58 @@ double CalcularAdaptacaoMedia(vector<Individuo> populacao)
     return media;
 }
 
+double CalcularDiversidade(vector<Individuo> populacao)
+{
+    double qnt_iguais = 0;
+    double max_iguais = 0;
+    for (int i = 0; i < populacao.size(); i++)
+    {
+        for (int j = i + 1; j < populacao.size(); j++)
+        {
+            if (populacao[i].cadeia == populacao[j].cadeia)
+            {
+                qnt_iguais++;
+            }
+            max_iguais++;
+        }
+    }
+
+    return abs((qnt_iguais / max_iguais) - 1.0);
+}
+
+void RecalcularTaxas(vector<Individuo> populacao)
+{
+    double diversidade = CalcularDiversidade(populacao);
+    if (diversidade > 0.5)
+    {
+        // - mut + rep
+        if (prob_mutacao - taxa_aumento_prob > 0)
+        {
+            prob_mutacao -= taxa_aumento_prob;
+        }
+        if (prob_reproducao + taxa_aumento_prob < 1)
+        {
+            prob_reproducao += taxa_aumento_prob;
+        }
+    }
+    else
+    {
+        // + mut - rep
+        if (prob_mutacao + taxa_aumento_prob < 1)
+        {
+            prob_mutacao += taxa_aumento_prob;
+        }
+        if (prob_reproducao - taxa_aumento_prob > 0)
+        {
+            prob_reproducao -= taxa_aumento_prob;
+        }
+    }
+}
+
 void HP(int qntIndividuos, int qntGeracoes)
 {
     ofstream arquivo;
-    arquivo.open("Problema_HP/pontos.txt");
+    arquivo.open("Problema_HP/pontos-ADP.txt");
     vector<Individuo> populacao = GerarPopulacao(qntIndividuos);
     int melhor = 0;
     //PrintarPopulacao(populacao);
@@ -459,6 +514,8 @@ void HP(int qntIndividuos, int qntGeracoes)
 
         double adaptacaoMedia = CalcularAdaptacaoMedia(populacao);
         arquivo << i << " " << adaptacaoMedia << endl;
+
+        RecalcularTaxas(populacao);
 
         ReproduzirPopulacao(populacao);
 

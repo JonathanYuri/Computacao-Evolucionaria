@@ -15,8 +15,8 @@ double taxa_aumento_prob = 0.1;
 struct Individuo {
     vector<int> posicaoNaLinha;
     int valor = 0;
-    double prob_mutacao;
-    double prob_reproducao;
+    double prob_mutacao= ((double) rand() / ((double)RAND_MAX + 1));
+    double prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
 };
 
 Individuo GerarIndividuo()
@@ -66,8 +66,6 @@ vector<Individuo> GerarPopulacao(int qntIndividuos)
     for (int i = 0; i < qntIndividuos; i++)
     {
         Individuo ind = GerarIndividuo();
-        ind.prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
-        ind.prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
         populacao.push_back(ind);
     }
 
@@ -154,9 +152,6 @@ Individuo GerarFilho(Individuo pai, Individuo mae)
         }
         qnt++;
     }
-
-    filho.prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
-    filho.prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
 
     AvaliarIndividuo(filho);
     return filho;

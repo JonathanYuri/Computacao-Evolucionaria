@@ -16,8 +16,8 @@ struct Individuo {
     long long int valor = 0;
     int quantidadeNos = 0;
 
-    double prob_mutacao;
-    double prob_reproducao;
+    double prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
+    double prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
 };
 
 int OBJETIVO = 0;
@@ -78,9 +78,6 @@ Individuo GerarIndividuo()
     int qntNos = 0;
     VerificarExpressao(i, i.inicial, qntNos);
     i.quantidadeNos = qntNos;
-
-    i.prob_mutacao = ((double) rand() / ((double)RAND_MAX + 1));
-    i.prob_reproducao = ((double) rand() / ((double)RAND_MAX + 1));
 
     return i;
 }

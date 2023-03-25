@@ -20,9 +20,9 @@ for nome_arquivo in nome_arquivos:
         j = i.split(' ')
         for n in range(0, len(j)):
             if n == 0:
-                x1.append(j[n])
+                x1.append(int(j[n]))
             elif n == 1:
-                y1.append(j[n][:-1])
+                y1.append(float(j[n][:-1]))
                 
     x.append(x1)
     y.append(y1)
