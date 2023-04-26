@@ -1,6 +1,7 @@
 NDAMAS_DIR = ./Problema_das_N-damas
 CAIXEIRO_DIR = ./Problema_do_Caixeiro-Viajante
 EXPRESSAO_DIR = ./Problema_da_Expressao-Matematica
+DNA_DIR = ./Problema_DNA
 HP_DIR = ./Problema_HP
 OUTDIR = ./dist
 
@@ -14,6 +15,10 @@ ndamas:
 	$(OUTDIR)/ndamasG2.exe
 	$(OUTDIR)/ndamasG3.exe
 	python3 grafico.py $(NDAMAS_DIR)/Algoritmo_Genetico/pontos.txt $(NDAMAS_DIR)/Algoritmo_Genetico/pontos-ADP.txt $(NDAMAS_DIR)/Algoritmo_Genetico/pontos-AAE2.txt
+
+dna:
+	g++ $(DNA_DIR)/dna.cpp -o $(OUTDIR)/dna.exe
+	$(OUTDIR)/dna.exe
 
 caixeiro:
 	g++ $(CAIXEIRO_DIR)/caixeiro.cpp -o $(OUTDIR)/caixeiro.exe
