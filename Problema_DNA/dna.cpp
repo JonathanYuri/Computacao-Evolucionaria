@@ -195,6 +195,7 @@ void MutarIndividuo(Individuo &ind)
     // escolher qual fita mutar
     int fita = rand() % ind.fita.size();
     MutarFita(ind.fita[fita]);
+    AvaliarIndividuo(ind);
 }
 
 void MutarPopulacao(vector<Individuo> &populacao)
