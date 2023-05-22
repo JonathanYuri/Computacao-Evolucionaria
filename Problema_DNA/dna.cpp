@@ -248,13 +248,29 @@ bool isValid(string fita)
     return true;
 }
 
+int lerInteiro(string msg)
+{
+    int num;
+    bool numeroValido = false;
+    while (!numeroValido) {
+        cout << msg;
+        cin >> num;
+
+        if (cin.fail()) {
+            cout << "Entrada invalida. Digite um numero.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        } else {
+            numeroValido = true;
+        }
+    }
+    return num;
+}
+
 int main()
 {
     srand((unsigned) time(NULL));
-
-    int qntFitas = 0;
-    cout << "Digite a quantidade de fitas que terao: ";
-    cin >> qntFitas;
+    int qntFitas = lerInteiro("Digite a quantidade de fitas que terao: ");
 
     for (int i = 0; i < qntFitas; i++)
     {
