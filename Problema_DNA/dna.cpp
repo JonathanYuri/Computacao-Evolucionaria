@@ -230,6 +230,24 @@ void Dna(int qntIndividuos, int qntGeracoes)
     PrintarIndividuo(melhor);
 }
 
+string upper(string fita)
+{
+    for (char &c : fita) {
+        c = toupper(c);
+    }
+    return fita;
+}
+
+bool isValid(string fita)
+{
+    for (char c : fita) {
+        if (c != 'A' && c != 'T' && c != 'G' && c != 'C') {
+            return false;
+        }
+    }
+    return true;
+}
+
 int main()
 {
     srand((unsigned) time(NULL));
@@ -243,6 +261,13 @@ int main()
         cout << "Digite a cadeia da fita [" << i << "]: ";
         string str;
         cin >> str;
+
+        str = upper(str);
+        if (!isValid(str)) {
+            cout << "A cadeia so pode ter as letras A T G C";
+            return 0;
+        }
+
         cadeia.push_back(str);
     }
 
